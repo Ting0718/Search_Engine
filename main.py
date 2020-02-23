@@ -15,7 +15,8 @@ def mergeFiles():
 def tfidf():
     ''' calculate the tf-idf '''
 
-
+def porterstemer():
+    '''porter stemmer'''
 
 
 
