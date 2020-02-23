@@ -2,6 +2,7 @@ from os import listdir
 from os.path import isfile,join
 import nltk
 from nltk.stem import PorterStemmer
+import json
 
 
 def readFiles(mypath:str):
@@ -13,8 +14,13 @@ def parseFiles(filename:str):
     ''' Reads through the corpus '''
 
 
-def writeFiles():
-    '''Writes parsed information onto the disk'''
+def writeFiles(inverted_index: dict, file: "JSON file"):
+    '''Writes parsed information into a disk'''
+    j = json.dumps(dict)
+    f = open(file, "w")
+    f.write(j)
+    f.close()
+
 
 def mergeFiles():
     ''' Merging files '''
