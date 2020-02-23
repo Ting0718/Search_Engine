@@ -1,6 +1,7 @@
 from os import listdir
 from os.path import isfile,join
-
+import nltk
+from nltk.stem import PorterStemmer
 
 
 def readFiles(mypath:str):
@@ -21,8 +22,10 @@ def mergeFiles():
 def tfidf():
     ''' calculate the tf-idf '''
 
-def porterstemer():
+def porterstemer(s:str):
     '''porter stemmer'''
+    porter = PorterStemmer()
+    return (porter.stem(s))
 
 if __name__=="__main__":
     path = ''
