@@ -1,6 +1,12 @@
+from os import listdir
+from os.path import isfile,join
 
-if __name__=="__main__":
-    print("starting")
+
+
+def readFiles(mypath:str):
+    '''parsing through all the files'''
+    return [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
 
 def parseFiles(filename:str):
     ''' Reads through the corpus '''
@@ -18,5 +24,9 @@ def tfidf():
 def porterstemer():
     '''porter stemmer'''
 
+if __name__=="__main__":
+    path = ''
+    files = readFiles("/Users/jason/Desktop/ANALYST")
+    print(files)
 
 
