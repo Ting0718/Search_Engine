@@ -29,7 +29,7 @@ def porterstemer(s:str):
     return (porter.stem(s))
 
 if __name__=="__main__":
-    path = ''
-    files = readFiles("/Users/jason/Desktop/ANALYST")
+    path = "/Users/jason/Desktop/ANALYST"
+    files = readFiles(path)
 
 
