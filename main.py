@@ -73,22 +73,30 @@ def mergeFiles(partialIndexes:list):
     Index = [] # The current line of the index corresponding to the partial index. "False" if line empty
     fileStorage = []
     for x in partialIndexes: 
-        with open(x,'r') as files:
-            Index.append(files.readline().rstrip().split()) #reads the first line for every file
-            fileStorage.append(files)
-
-    with open('output.py','w') as output:
-        while(not any(Index)): #while there are still valid lines in the files
+        files = open(x,'r')
+        Index.append(files.readline().rstrip().split()) #reads the first line for every file
+        fileStorage.append(files)
+    print(Index)
+    print(fileStorage)
+    with open('/Users/jason/Desktop/CMP 121 Information Retrieval/Json Merging Test/output.txt',"a") as output:
+        def allFalse():
+            for x in Index:
+                if x != False:
+                    return True
+            return False
+        while(allFalse()): #while there are still valid lines in the files
             #Find the smallest alphabetical index word
-            smallest = "ZZZZZZZZZ"
+            smallest = "zzzzzzzzzzzzzzz"
             for x in Index:
                 if(x): #If x isn't False 
-                    smallest = min(smallest, x[0])
+                    smallest = smallest if smallest<x[0] else x[0]
             #If the thing is a smallest
             toWrite = []
+            word = ""
             for i in range(len(Index)): 
                 if(Index[i] != False and Index[i][0] == smallest):
-                    merge(Index[i+1:],toWrite)
+                    word = Index[i][0]
+                    toWrite = merge(Index[i][1:],toWrite)
                     #Gets the next value
                     Index[i] = fileStorage[i].readline()
                     if(Index[i] == ""):
@@ -96,7 +104,12 @@ def mergeFiles(partialIndexes:list):
                     else: 
                         Index[i] = Index[i].rstrip().split()
             #writing to file
-            output.write(" ".join(toWrite) +'\n')
+            toWrite.insert(0,word)
+            s = " ".join(toWrite) + '\n'
+            output.write(s)
+        
+    for files in fileStorage:
+        files.close()
     
 
 
