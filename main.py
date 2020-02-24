@@ -33,13 +33,14 @@ def parseFiles(filename:str):
     return output
 
 
-def writeFiles(inverted_index: dict, file: "JSON file"):
+def writeFiles(inverted_index: dict, filename: str):
     '''Writes parsed information into a disk'''
-    j = json.dumps(dict, sort_keys=True)
-    f = open(file, "w")
-    f.write(j)
+    f = open(filename, "w")
+    sorted_dict = {k: sorted(v) for k, v in sorted(dict.items(), key=lambda item: item[1])}
+    for k, v in sorted_dict.items():
+        f.write(k + " " + " ".join(map(str, v)) + "\n")
     f.close()
-
+    
 
 def mergeFiles():
     ''' Merging files '''
@@ -57,5 +58,4 @@ if __name__=="__main__":
     files = readFiles(path)
     for file in files:
         print(parseFiles(file))
-
 
