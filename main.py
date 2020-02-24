@@ -48,7 +48,7 @@ def parseFiles(filename:str):
 def writeFiles(inverted_index: dict, filename: str):
     '''Writes parsed information into a disk'''
     f = open(filename, "w")
-    for k, v in inverted_index.items():
+    for k, v in sorted(inverted_index.items()):
         f.write(k + " " + " ".join(map(str, sorted(v))) + "\n")
     f.close()
 
@@ -127,15 +127,13 @@ if __name__=="__main__":
     d = defaultdict(list)
     #path = "ANALYST/www-db_ics_uci_edu"
 
-    path = "ANALYST/www-db_ics_uci_edu"
+    path = "ANALYST"
     files = readFiles(path)
-
-    file_id = 0
+    doc_id = DocID()
     for file in files:
         list_of_tokens = set(parseFiles(file))  # remove duplicates
+        id_num = doc_id.add_to_docs(file)
         for token in list_of_tokens:
-            d[token].append(file_id)
-        file_id += 1
-
-    f = open("output.txt", "w")
-    f.write(str(d))
+            d[token].append(id_num)
+        id_num += 1
+    writeFiles(d,"test.txt")
