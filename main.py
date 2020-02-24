@@ -32,6 +32,10 @@ def parseFiles(filename:str):
     f = open(filename, 'r')
     content = json.load(f)
 
+    '''second way still don't work :('''
+    with open(filename, encoding='utf-8') as f:
+        content = json.load(f)
+
     url = content["url"]
     html = content["content"]
 
@@ -127,14 +131,15 @@ if __name__=="__main__":
     d = defaultdict(list)
     #path = "ANALYST/www-db_ics_uci_edu"
 
-    path = "Users/shireenhsu/Desktop/ANALYST"
+    path = "/Users/shireenhsu/Desktop/www_informatics_uci_edu"
     files = readFiles(path)
 
-    {"term": ["doc1", "doc2", "doc3"]}
-
+    file_id = 0
     for file in files:
-        file_id = file
-        list_of_tokens = list(set(parseFiles(file)))  # remove duplicates
+        list_of_tokens = parseFiles(file)  # remove duplicates
         for token in list_of_tokens:
-            d[token].append(file)
+            d[token].append(file_id)
+        file_id += 1
 
+    f = open("output.txt", "w")
+    f.write(str(d))
