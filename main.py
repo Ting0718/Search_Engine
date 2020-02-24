@@ -36,9 +36,8 @@ def parseFiles(filename:str):
 def writeFiles(inverted_index: dict, filename: str):
     '''Writes parsed information into a disk'''
     f = open(filename, "w")
-    sorted_dict = {k: sorted(v) for k, v in sorted(dict.items(), key=lambda item: item[1])}
-    for k, v in sorted_dict.items():
-        f.write(k + " " + " ".join(map(str, v)) + "\n")
+    for k, v in inverted_index.items():
+        f.write(k + " " + " ".join(map(str, sorted(v))) + "\n")
     f.close()
     
 
@@ -54,8 +53,12 @@ def porterstemer(s:str):
     return (porter.stem(s))
 
 if __name__=="__main__":
-    path = "ANALYST"
-    files = readFiles(path)
-    for file in files:
-        print(parseFiles(file))
+    # path = "ANALYST/www-db_ics_uci_edu"
+    # files = readFiles(path)
+    # a = []
+    d = {"apple": [2, 4], "aardvark": [2, 1, 7, 5]}
+    # for file in files:
+    #     a.append(parseFiles(file))
+    writeFiles(d,"test.txt")
+
 
