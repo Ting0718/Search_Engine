@@ -52,23 +52,51 @@ def writeFiles(inverted_index: dict, filename: str):
         f.write(k + " " + " ".join(map(str, sorted(v))) + "\n")
     f.close()
 
+def merge(list1, list2):
+    answer = []
+    c1, c2 = 0,0
+    while(c1 < len(list1) and c2 < len(list2)):
+        if list1[c1] == list2[c2]:
+            answer.append(list1[c1])
+            c1 += 1
+            c2 += 1
+        elif list1[c1] < list2[c2]:
+            answer.append(list1[c1])
+            c1 += 1
+        else:
+            answer.append(list2[c2])
+            c2 += 1
+    return answer + list1[c1:] + list2[c2:]
+
 def mergeFiles(partialIndexes:list):
     ''' Merging files '''
     Index = [] # The current line of the index corresponding to the partial index. "False" if line empty
+    fileStorage = []
     for x in partialIndexes: 
         with open(x,'r') as files:
             Index.append(files.readline().rstrip().split()) #reads the first line for every file
-    
-    while(not any(Index)): #while there are still valid lines in the files
-        #Find the smallest alphabetical index word
-        smallest = ''
-        for x in Index:
-            if(x): #If x isn't False 
-                smallest = min(smallest, x)
-        #If the thing is a smallest
-        
+            fileStorage.append(files)
 
-        
+    with open('output.py','w') as output:
+        while(not any(Index)): #while there are still valid lines in the files
+            #Find the smallest alphabetical index word
+            smallest = "ZZZZZZZZZ"
+            for x in Index:
+                if(x): #If x isn't False 
+                    smallest = min(smallest, x[0])
+            #If the thing is a smallest
+            toWrite = []
+            for i in range(len(Index)): 
+                if(Index[i] != False and Index[i][0] == smallest):
+                    merge(Index[i+1:],toWrite)
+                    #Gets the next value
+                    Index[i] = fileStorage[i].readline()
+                    if(Index[i] == ""):
+                        Index[i] = False 
+                    else: 
+                        Index[i] = Index[i].rstrip().split()
+            #writing to file
+            output.write(" ".join(toWrite) +'\n')
     
 
 
