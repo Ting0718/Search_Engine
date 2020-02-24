@@ -17,7 +17,7 @@ def parseFiles(filename:str):
 
 def writeFiles(inverted_index: dict, file: "JSON file"):
     '''Writes parsed information into a disk'''
-    j = json.dumps(dict)
+    j = json.dumps(dict, sort_keys=True)
     f = open(file, "w")
     f.write(j)
     f.close()
