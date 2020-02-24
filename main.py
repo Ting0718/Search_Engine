@@ -4,6 +4,7 @@ from nltk.stem import PorterStemmer
 import json
 from bs4 import BeautifulSoup
 import tokenizer
+from collections import defaultdict
 
 blackList = ['[document]', 'noscript', 'head', 'header', 'html', 'meta', 'input', 'script', 'style', 'b', 'button']
 
@@ -65,13 +66,17 @@ def porterstemer(s:str):
 
 
 if __name__=="__main__":
-    path = "ANALYST/www-db_ics_uci_edu"
-    files = readFiles(path)
-    d = DocID()
-    a = []
-    #d = {"apple": [2, 4], "aardvark": [2, 1, 7, 5]}
-    for file in files:
-        a.append(parseFiles(file))
-    writeFiles(d,"test.txt")
+    d = defaultdict(list)
+    #path = "ANALYST/www-db_ics_uci_edu"
 
+    path = "Users/shireenhsu/Desktop/ANALYST"
+    files = readFiles(path)
+
+    {"term": ["doc1", "doc2", "doc3"]}
+
+    for file in files:
+        file_id = file
+        list_of_tokens = list(set(parseFiles(file)))  # remove duplicates
+        for token in list_of_tokens:
+            d[token].append(file)
 
