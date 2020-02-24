@@ -29,12 +29,8 @@ def readFiles(mypath:str):
 
 def parseFiles(filename:str):
     ''' Reads through the corpus '''
-    f = open(filename, 'r')
+    f = open(filename, 'r', encoding = "utf-8", errors = "ignore")
     content = json.load(f)
-
-    '''second way still don't work :('''
-    with open(filename, encoding='utf-8') as f:
-        content = json.load(f)
 
     url = content["url"]
     html = content["content"]
@@ -131,12 +127,12 @@ if __name__=="__main__":
     d = defaultdict(list)
     #path = "ANALYST/www-db_ics_uci_edu"
 
-    path = "/Users/shireenhsu/Desktop/www_informatics_uci_edu"
+    path = "ANALYST/www-db_ics_uci_edu"
     files = readFiles(path)
 
     file_id = 0
     for file in files:
-        list_of_tokens = parseFiles(file)  # remove duplicates
+        list_of_tokens = set(parseFiles(file))  # remove duplicates
         for token in list_of_tokens:
             d[token].append(file_id)
         file_id += 1
