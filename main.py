@@ -41,8 +41,25 @@ def writeFiles(inverted_index: dict, file: "JSON file"):
     f.close()
 
 
-def mergeFiles():
+def mergeFiles(partialIndexes:list):
     ''' Merging files '''
+    Index = [] # The current line of the index corresponding to the partial index. "False" if line empty
+    for x in partialIndexes: 
+        with open(x,'r') as files:
+            Index.append(files.readline().rstrip().split()) #reads the first line for every file
+    
+    while(not any(Index)): #while there are still valid lines in the files
+        #Find the smallest alphabetical index word
+        smallest = ''
+        for x in Index:
+            if(x): #If x isn't False 
+                smallest = min(smallest, x)
+        #If the thing is a smallest
+        
+
+        
+    
+
 
 def tfidf():
     ''' calculate the tf-idf '''
