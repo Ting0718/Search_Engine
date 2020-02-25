@@ -48,8 +48,8 @@ def parseFiles(filename:str):
 def writeFiles(inverted_index: dict, filename: str):
     '''Writes parsed information into a disk'''
     f = open(filename, "w")
-    for k, v in inverted_index.items():
-        f.write(k + " " + " ".join(map(str, sorted(v))) + "\n")
+    for k, v in sorted(inverted_index.items()):
+        f.write(k + "," + ",".join(str(x[0]) + " " +str(x[1]) for x in sorted(v, key = lambda x: x[0])) + "\n")
     f.close()
 
 def merge(list1, list2):
@@ -113,8 +113,18 @@ def mergeFiles(partialIndexes:list):
     
 
 
-def tfidf():
-    ''' calculate the tf-idf '''
+def tf(tokenized_file:[str]):
+    ''' calculate the tf and return as a list of tuples of (term,frequency) '''
+    terms = defaultdict(int)
+    for t in tokenized_file:
+        terms[t] += 1
+    to_ret = []
+    for k,v in terms.items():
+        to_ret.append((k,v))
+    return to_ret
+
+
+
 
 def porterstemer(s:str):
     '''porter stemmer'''
@@ -125,14 +135,15 @@ def porterstemer(s:str):
 
 if __name__=="__main__":
     d = defaultdict(list)
+    #path = "ANALYST/www-db_ics_uci_edu"
+    #path = "/Users/Scott/Desktop/DEV"
+    path = "ANALYST"
     files = readFiles(path)
-
-    file_id = 0
+    doc_id = DocID()
     for file in files:
-        list_of_tokens = set(parseFiles(file))  # remove duplicates
+        list_of_tokens = tf(parseFiles(file))  # remove duplicates
+        id_num = doc_id.add_to_docs(file)
         for token in list_of_tokens:
-            d[token].append(file_id)
-        file_id += 1
-
-    f = open("output.txt", "w")
-    f.write(str(d))
+            d[token[0]].append((id_num,token[1]))
+        print(id_num)
+    writeFiles(d,"testA.txt")
