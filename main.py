@@ -117,16 +117,14 @@ def tf(tokenized_file:[str]):
     ''' calculate the tf and return as a list of tuples of (term,frequency) '''
     terms = defaultdict(int)
     for t in tokenized_file:
-        terms[t] += 1
+        stemWord = porterstemmer(t)
+        terms[stemWord] += 1
     to_ret = []
     for k,v in terms.items():
         to_ret.append((k,v))
     return to_ret
 
-
-
-
-def porterstemer(s:str):
+def porterstemmer(s:str):
     '''porter stemmer'''
     porter = PorterStemmer()
     return (porter.stem(s))
