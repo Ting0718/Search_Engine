@@ -74,11 +74,11 @@ def mergeFiles(partialIndexes:list):
     fileStorage = []
     for x in partialIndexes: 
         files = open(x,'r')
-        Index.append(files.readline().rstrip().split()) #reads the first line for every file
+        Index.append(files.readline().rstrip().split(",")) #reads the first line for every file
         fileStorage.append(files)
     print(Index)
     print(fileStorage)
-    with open('/Users/jason/Desktop/CMP 121 Information Retrieval/Json Merging Test/output.txt',"a") as output:
+    with open('/Users/jason/Desktop/CMP 121 Information Retrieval/Json Merging Test/output.txt',"w") as output:
         def allFalse():
             for x in Index:
                 if x != False:
@@ -102,10 +102,10 @@ def mergeFiles(partialIndexes:list):
                     if(Index[i] == ""):
                         Index[i] = False 
                     else: 
-                        Index[i] = Index[i].rstrip().split()
+                        Index[i] = Index[i].rstrip().split(",")
             #writing to file
             toWrite.insert(0,word)
-            s = " ".join(toWrite) + '\n'
+            s = ",".join(toWrite) + '\n'
             output.write(s)
         
     for files in fileStorage:
