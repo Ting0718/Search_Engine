@@ -125,9 +125,6 @@ def porterstemer(s:str):
 
 if __name__=="__main__":
     d = defaultdict(list)
-    #path = "ANALYST/www-db_ics_uci_edu"
-
-    path = "ANALYST/www-db_ics_uci_edu"
     files = readFiles(path)
 
     file_id = 0
