@@ -5,8 +5,12 @@ import json
 from bs4 import BeautifulSoup
 import tokenizer
 from collections import defaultdict
+import threading
+import indexer
 
 blackList = ['[document]', 'noscript', 'head', 'header', 'html', 'meta', 'input', 'script', 'style', 'b', 'button']
+MAX_INDEX_LENGTH = 100000
+THREADS = 1
 
 class DocID:
     def __init__(self):
@@ -18,6 +22,29 @@ class DocID:
         self.doc_ids[self.current_doc] = url
         self.current_doc += 1
         return self.current_doc - 1
+
+
+class IndexerManager:
+    def __init__(self,doc_id_tracker,files):
+        self.current_url = 0
+        self.doc_id_tracker = doc_id_tracker
+        self.files = files
+        self.partial_indexes = []
+
+    def id_index(self,document):
+        return self.doc_id_tracker.add_to_docs(document)
+
+    def request_document(self):
+        if self.current_url < len(self.files):
+            self.current_url += 1
+            page = self.files[self.current_url-1]
+            return (page,self.doc_id_tracker.add_to_docs(page))
+        else:
+            return False
+
+    def add_partial_index(self,index):
+        self.partial_indexes.append(index)
+
 
 def readFiles(mypath:str):
     '''parsing through all the files'''
@@ -45,7 +72,7 @@ def parseFiles(filename:str):
     return output
 
 
-def writeFiles(inverted_index: dict, filename: str):
+def writeFile(inverted_index: dict, filename: str):
     '''Writes parsed information into a disk'''
     f = open(filename, "w")
     for k, v in sorted(inverted_index.items()):
@@ -132,16 +159,18 @@ def porterstemmer(s:str):
 
 
 if __name__=="__main__":
-    d = defaultdict(list)
     #path = "ANALYST/www-db_ics_uci_edu"
-    #path = "/Users/Scott/Desktop/DEV"
-    path = "ANALYST"
+    path = "/Users/Scott/Desktop/DEV"
+    #path = "ANALYST"
     files = readFiles(path)
     doc_id = DocID()
-    for file in files:
-        list_of_tokens = tf(parseFiles(file))  # remove duplicates
-        id_num = doc_id.add_to_docs(file)
-        for token in list_of_tokens:
-            d[token[0]].append((id_num,token[1]))
-        print(id_num)
-    writeFiles(d,"testA.txt")
+    manager = IndexerManager(doc_id,files)
+    get_doc_lock = threading.Lock()
+    indexers = [indexer.Indexer("partial(thread" + str(i) + ")",manager,get_doc_lock,i) for i in range(1,THREADS+1)]
+    for indexer in indexers:
+        indexer.start()
+    for indexer in indexers:
+        indexer.join()
+    mergeFiles(manager.partial_indexes)
+
+
