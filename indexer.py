@@ -3,10 +3,11 @@ import threading
 from collections import defaultdict
 
 class Indexer(threading.Thread):
-    def __init__(self,write_file:str,manager, request_document_lock,thread):
+    def __init__(self,write_file:str,manager, request_document_lock,simhash_lock,thread):
         self.indexed = 0
         self.file_name = write_file
         self.request_document_lock = request_document_lock
+        self.simhash_lock = simhash_lock
         self.manager = manager
         self.index = defaultdict(list)
         self.files_written = 0
@@ -26,13 +27,15 @@ class Indexer(threading.Thread):
                     self.dump_index()
                     return
                 list_of_tokens = main.tf(main.parseFiles(page[0]))
-
+                self.simhash_lock.acquire()
                 if len(list_of_tokens) > 25 and not self.manager.check_simhash(list_of_tokens):
+                    self.simhash_lock.release()
                     for token in list_of_tokens:
                         self.index[token[0]].append((page[1], token[1]))
                     self.indexed += 1
                     print("THREAD: " + str(self.thread_id) + " INDEXED: " + page[0] + " " + str(page[1]))
                 else:
+                    self.simhash_lock.release()
                     print("THREAD: " + str(self.thread_id) + " SIMHASH SKIPPED: " + page[0] + " " + str(page[1]))
 
 
