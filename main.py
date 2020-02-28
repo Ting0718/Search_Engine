@@ -11,7 +11,7 @@ import simhash
 
 blackList = ['[document]', 'noscript', 'head', 'header', 'html', 'meta', 'input', 'script', 'style', 'b', 'button']
 MAX_INDEX_LENGTH = 15000
-THREADS = 1
+THREADS = 3
 
 class DocID:
     def __init__(self):
@@ -113,8 +113,8 @@ def mergeFiles(partialIndexes:list):
         files = open(x,'r')
         Index.append(files.readline().rstrip().split(",")) #reads the first line for every file
         fileStorage.append(files)
-    print(Index)
-    print(fileStorage)
+    #print(Index)
+    #print(fileStorage)
     with open('output.txt',"w") as output:
         def allFalse():
             for x in Index:
@@ -170,13 +170,14 @@ def porterstemmer(s:str):
 
 if __name__=="__main__":
     #path = "ANALYST/www-db_ics_uci_edu"
-    path = "/Users/Scott/Desktop/DEV"
-    #path = "ANALYST"
+    #path = "/Users/Scott/Desktop/DEV"
+    path = "ANALYST"
     files = readFiles(path)
     doc_id = DocID()
     manager = IndexerManager(doc_id,files)
     get_doc_lock = threading.Lock()
-    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt",manager,get_doc_lock,i) for i in range(1,THREADS+1)]
+    simhash_lock = threading.Lock()
+    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt",manager,get_doc_lock,simhash_lock,i) for i in range(1,THREADS+1)]
     for indexer in indexers:
         indexer.start()
     for indexer in indexers:
