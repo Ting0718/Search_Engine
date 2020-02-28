@@ -11,7 +11,7 @@ import simhash
 
 blackList = ['[document]', 'noscript', 'head', 'header', 'html', 'meta', 'input', 'script', 'style', 'b', 'button']
 MAX_INDEX_LENGTH = 15000
-THREADS = 1
+THREADS = 3
 
 class DocID:
     def __init__(self):
@@ -171,6 +171,7 @@ def porterstemmer(s:str):
 if __name__=="__main__":
     #path = "ANALYST/www-db_ics_uci_edu"
     path = "/Users/Scott/Desktop/DEV"
+    #path = "/Users/shireenhsu/Dekstop/121_Assignment3/ANALYST"
     #path = "ANALYST"
     files = readFiles(path)
     doc_id = DocID()
