@@ -1,10 +1,7 @@
 import main
 import threading
-#create indexer class to put together it's own index on a separate thread
-#to do: convert the url getter to be threadsafe
-#change the __name__ in main.py to set up multiple threads
-#set up a termination function in main for when out of pages
 from collections import defaultdict
+
 class Indexer(threading.Thread):
     def __init__(self,write_file:str,manager, request_document_lock,thread):
         self.indexed = 0
@@ -29,10 +26,14 @@ class Indexer(threading.Thread):
                     self.dump_index()
                     return
                 list_of_tokens = main.tf(main.parseFiles(page[0]))
-                for token in list_of_tokens:
-                    self.index[token[0]].append((page[1], token[1]))
-                self.indexed += 1
-                print("THREAD: " + str(self.thread_id) + " INDEXED: " + page[0] + " " + str(page[1]))
+
+                if len(list_of_tokens) > 25 and not self.manager.check_simhash(list_of_tokens):
+                    for token in list_of_tokens:
+                        self.index[token[0]].append((page[1], token[1]))
+                    self.indexed += 1
+                    print("THREAD: " + str(self.thread_id) + " INDEXED: " + page[0] + " " + str(page[1]))
+                else:
+                    print("THREAD: " + str(self.thread_id) + " SIMHASH SKIPPED: " + page[0] + " " + str(page[1]))
 
 
     def dump_index(self):
@@ -42,5 +43,4 @@ class Indexer(threading.Thread):
         self.files_written += 1
         self.indexed = 0
         self.file_name = self.file_name.split(".")[0] + str(self.files_written) + ".txt"
-
 

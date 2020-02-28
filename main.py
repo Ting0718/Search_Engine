@@ -7,9 +7,10 @@ import tokenizer
 from collections import defaultdict
 import threading
 import indexer
+import simhash
 
 blackList = ['[document]', 'noscript', 'head', 'header', 'html', 'meta', 'input', 'script', 'style', 'b', 'button']
-MAX_INDEX_LENGTH = 100000
+MAX_INDEX_LENGTH = 15000
 THREADS = 1
 
 class DocID:
@@ -30,6 +31,7 @@ class IndexerManager:
         self.doc_id_tracker = doc_id_tracker
         self.files = files
         self.partial_indexes = []
+        self.simhashes = simhash.HashManager(0.95)
 
     def id_index(self,document):
         return self.doc_id_tracker.add_to_docs(document)
@@ -44,6 +46,14 @@ class IndexerManager:
 
     def add_partial_index(self,index):
         self.partial_indexes.append(index)
+
+    def check_simhash(self,text):
+        hashed_doc = simhash.calculate_hash(text)
+        if self.simhashes.find_near_duplicate(hashed_doc):
+            return True
+        else:
+            self.simhashes.add(hashed_doc)
+            return False
 
 
 def readFiles(mypath:str):
@@ -105,7 +115,7 @@ def mergeFiles(partialIndexes:list):
         fileStorage.append(files)
     print(Index)
     print(fileStorage)
-    with open('/Users/jason/Desktop/CMP 121 Information Retrieval/Json Merging Test/output.txt',"w") as output:
+    with open('output.txt',"w") as output:
         def allFalse():
             for x in Index:
                 if x != False:
@@ -166,7 +176,7 @@ if __name__=="__main__":
     doc_id = DocID()
     manager = IndexerManager(doc_id,files)
     get_doc_lock = threading.Lock()
-    indexers = [indexer.Indexer("partial(thread" + str(i) + ")",manager,get_doc_lock,i) for i in range(1,THREADS+1)]
+    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt",manager,get_doc_lock,i) for i in range(1,THREADS+1)]
     for indexer in indexers:
         indexer.start()
     for indexer in indexers:
