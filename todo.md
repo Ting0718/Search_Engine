@@ -1,9 +1,11 @@
 
 # Todo:
 
+- [ ] boolean search
 - [ ] Important words such as bold, header's tf should * 5
 - [ ] (optional) consine similarity
 - [ ] (optional) sort the retrieved documents based on tf-idf scoring
+- [ ] tf-idf
 
 ## Extra Credits
 Extra credit will be given for tasks that improve the quality of the retrieval and
