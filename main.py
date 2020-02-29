@@ -8,9 +8,12 @@ from collections import defaultdict
 import threading
 import indexer
 import simhash
+import re
 
 blackList = ['[document]', 'noscript', 'head', 'header', 'html', 'meta', 'input', 'script', 'style', 'b', 'button']
 MAX_INDEX_LENGTH = 15000
+TOTAL_DOCUMENTS = 55392  #need to change
+TOAL_TOKENS = 1256389
 THREADS = 3
 
 class DocID:
@@ -161,22 +164,39 @@ def tf(tokenized_file:[str]):
         to_ret.append((k,v))
     return to_ret
 
+def idf(s:str): # will do later
+    '''IDF(t) = log_e(Total number of documents / Number of documents with term t in it).'''
+    
 def porterstemmer(s:str):
     '''porter stemmer'''
     porter = PorterStemmer()
     return (porter.stem(s))
 
+def getToken(line:str) -> str:
+    '''get the first token in each posting'''
+    return re.search(r"(\w+)", line).group(1)
 
+def SetOfDocId(line:str):
+    '''return a list of doc for a term'''
+    s = set()
+    for i in line.split(',')[1:]:
+        s.add(int(re.search(r"([0-9]+) ",i).group(1)))
+    return s
+
+def mergePostings(list_of_posting:list):
+    '''merge a list of postings in inverted list'''
+    return set.intersection(*list_of_posting)
 
 if __name__=="__main__":
     #path = "ANALYST/www-db_ics_uci_edu"
 
-    path = "/Users/Scott/Desktop/DEV"
-    #path = "/Users/shireenhsu/Dekstop/121_Assignment3/ANALYST"
-    #path = "ANALYST"
+    #path = "/Users/Scott/Desktop/DEV"
+    path = "/Users/shireenhsu/Desktop/121_Assignment3/DEV"
 
     #path = "/Users/Scott/Desktop/DEV"
-    path = "ANALYST"
+    #path = "ANALYST"
+
+    
     files = readFiles(path)
     doc_id = DocID()
     manager = IndexerManager(doc_id,files)
@@ -188,5 +208,8 @@ if __name__=="__main__":
     for indexer in indexers:
         indexer.join()
     mergeFiles(manager.partial_indexes)
+    
+
+        
 
 
