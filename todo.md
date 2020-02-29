@@ -1,7 +1,7 @@
 
 # Todo:
 
-- [ ] boolean search
+- [ ] boolean queries (M2)
 - [ ] Important words such as bold, header's tf should * 5
 - [ ] (optional) consine similarity
 - [ ] (optional) sort the retrieved documents based on tf-idf scoring
