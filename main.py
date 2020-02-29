@@ -207,7 +207,7 @@ if __name__ == "__main__":
     path = "/Users/shireenhsu/Desktop/121_Assignment3/DEV"
 
     #path = "ANALYST"
-
+    '''
     files = readFiles(path)
     doc_id = DocID()
     manager = IndexerManager(doc_id, files)
@@ -220,17 +220,18 @@ if __name__ == "__main__":
     for indexer in indexers:
         indexer.join()
     mergeFiles(manager.partial_indexes)
-
+    '''
     queries = ["master", "of", "software", "engineering"]
     #queries = ["machine", "learning"] -> doesn't work
     q = sorted(queries)
     list_of_posting = []
 
     index = 0
-    f = open("output.txt", 'r')
+    outputFile = "/Users/shireenhsu/Desktop/output/output.txt"
+    f = open(outputFile, 'r')
     try:
         for line in f:
-            if getToken(line) == queries[index]:
+            if getToken(line) == porterstemmer(queries[index]):
                 list_of_posting.append(SetOfDocId(line))
                 index += 1
     except IndexError:
@@ -238,7 +239,7 @@ if __name__ == "__main__":
 
     ''' retreive the first 5 URLs '''  # need to sort based on the tf-idf
     top_five = mergePostings(list_of_posting)[:5]  # return the first 5 URLst
-    #print(top_five)
+    print(top_five)
 
-    #start_time = time.time()
-    #print("--- %s seconds ---" % (time.time() - start_time))
+    start_time = time.time()
+    print("--- %s seconds ---" % (time.time() - start_time))
