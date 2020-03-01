@@ -201,9 +201,7 @@ def mergePostings(list_of_posting: list):
 
 
 if __name__ == "__main__":
-    #path = "ANALYST/www-db_ics_uci_edu"
-
-    #path = "/Users/Scott/Desktop/DEV"
+     #path = "/Users/Scott/Desktop/DEV"
     path = "/Users/shireenhsu/Desktop/121_Assignment3/DEV"
 
     #path = "ANALYST"
@@ -221,14 +219,15 @@ if __name__ == "__main__":
         indexer.join()
     mergeFiles(manager.partial_indexes)
     '''
+
+    '''
     queries = ["master", "of", "software", "engineering"]
     #queries = ["machine", "learning"] -> doesn't work
     q = sorted(queries)
     list_of_posting = []
 
     index = 0
-    outputFile = "/Users/shireenhsu/Desktop/output/output.txt"
-    f = open(outputFile, 'r')
+   
     try:
         for line in f:
             if getToken(line) == porterstemmer(queries[index]):
@@ -236,10 +235,18 @@ if __name__ == "__main__":
                 index += 1
     except IndexError:
         pass
+    '''
+    output_path= "/Users/shireenhsu/Desktop/output/output.txt"
+    f = open(output_path, 'r')
+    with open("term_index.txt", "w") as term:
+        for line_number, line in enumerate(f, 1):
+	        term.write("{0} {1}".format(line_number, getToken(line)) + "\n")
 
     ''' retreive the first 5 URLs '''  # need to sort based on the tf-idf
+    '''
     top_five = mergePostings(list_of_posting)[:5]  # return the first 5 URLst
     print(top_five)
 
     start_time = time.time()
     print("--- %s seconds ---" % (time.time() - start_time))
+    '''
