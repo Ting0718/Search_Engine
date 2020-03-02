@@ -11,47 +11,65 @@ import simhash
 
 blackList = ['[document]', 'noscript', 'head', 'header',
              'html', 'meta', 'input', 'script', 'style', 'b', 'button']
-MAX_INDEX_LENGTH = 15000
+MAX_INDEX_LENGTH = 15000 #max length of indexes before merge
 TOTAL_DOCUMENTS = 55392  # need to change
 TOAL_TOKENS = 1256389
-THREADS = 3
+THREADS = 3 #how many threads will be used to scan documents
 
 
 class DocID:
+    '''
+    class to keep track of document Id numbers
+    Add to docs will add a document to a local dictionary of id:url and will return the id number used for that url
+    '''
     def __init__(self):
         self.current_doc = 0
         self.doc_ids = dict()
 
     def add_to_docs(self, url: str):
-        '''Assigns a doc_id to a url and adds it to the doc_ids dictionary'''
+        '''Assigns a doc_id to a url and adds it to the doc_ids dictionary then returns the id number assigned'''
         self.doc_ids[self.current_doc] = url
         self.current_doc += 1
         return self.current_doc - 1
 
+    def write_doc_id(self,filename="docid.json"):
+        '''writes the content of docId dictionary to a json file'''
+        with open(filename,'w') as out:
+            json.dump(self.doc_ids,out)
+
+
 
 class IndexerManager:
-    def __init__(self, doc_id_tracker, files):
+    '''
+    class to manage indexer threads, contains simhash manager, a list of partial indexes and a document id tracker
+    also contains the current url numerically indexed
+    '''
+    def __init__(self, doc_id_track, files):
         self.current_url = 0
-        self.doc_id_tracker = doc_id_tracker
+        self.doc_id_tracker = doc_id_track
         self.files = files
         self.partial_indexes = []
         self.simhashes = simhash.HashManager(0.95)
 
     def id_index(self, document):
+        '''adds doc from a thread to the id tracker'''
         return self.doc_id_tracker.add_to_docs(document)
 
     def request_document(self):
+        '''method to be called by thread to get a new url, returns the url content'''
         if self.current_url < len(self.files):
             self.current_url += 1
             page = self.files[self.current_url-1]
-            return (page, self.doc_id_tracker.add_to_docs(page))
+            return (page, self.doc_id_tracker.add_to_docs(page)) #returns (docContent,docID)
         else:
             return False
 
     def add_partial_index(self, index):
+        ''' adds the filename of a written partial index to partial index list'''
         self.partial_indexes.append(index)
 
     def check_simhash(self, text):
+        '''calculate and check whether there is a near duplicate of the text'''
         hashed_doc = simhash.calculate_hash(text)
         if self.simhashes.find_near_duplicate(hashed_doc):
             return True
@@ -60,8 +78,9 @@ class IndexerManager:
             return False
 
 
+
 def readFiles(mypath: str):
-    '''parsing through all the files'''
+    '''parses through all files in the folder and returns a list of their file paths'''
     filepaths = []
     for root, dirs, files in os.walk(mypath, topdown=True):
         for name in files:
@@ -75,15 +94,15 @@ def parseFiles(filename: str):
     content = json.load(f)
 
     url = content["url"]
-    html = content["content"]
+    html = content["content"] #splits the content fromurl
 
     output = " "
     soup = BeautifulSoup(html, "lxml")
     text = soup.find_all(text=True)
     for t in text:
-        if t.parent.name not in blackList:
+        if t.parent.name not in blackList: #removes blacklisted tags from the considered content
             output += '{} '.format(t)
-    output = tokenizer.tokenize(output)
+    output = tokenizer.tokenize(output) #tokenizes the output
     return output
 
 
@@ -185,18 +204,17 @@ if __name__ == "__main__":
     '''Actually reading the JSON and merging the files into one output.txt'''
     path = input("Enter Path Name: ")
 
-
     files = readFiles(path)
     doc_id = DocID()
     manager = IndexerManager(doc_id, files)
     get_doc_lock = threading.Lock()
     simhash_lock = threading.Lock()
-    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager,
+    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager, #creates and instntiates indexers based on THREADS constant
                                 get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
     for indexer in indexers:
-        indexer.start()
+        indexer.start() #starts all indexer threads
     for indexer in indexers:
-        indexer.join()
+        indexer.join() #waits for all indexer threads
     mergeFiles(manager.partial_indexes)
    
     
