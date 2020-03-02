@@ -32,21 +32,14 @@ if __name__ == "__main__":
     q = sorted(queries)
     list_of_posting = []
 
-    index = 0
-    try:
-        stemmed = porterstemmer(queries[index])
-        print(stemmed)
-        for line in f:
-            if getToken(line) == stemmed:
+
+    for line in f:
+        for i in range(len(q)):
+            if getToken(line) == porterstemmer(queries[i]):
                 list_of_posting.append(SetOfDocId(line))
-                index += 1
-                stemmed = porterstemmer(queries[index])
-                print(stemmed)
-    except IndexError:
-        pass
 
     ''' retreive the first 5 URLs '''  # need to sort based on the tf-idf
     
-    top_five = mergePostings(list_of_posting) # return the first 5 URLst
+    top_five = mergePostings(list_of_posting)[:5] # return the first 5 URLst
     print(top_five)
     print("--- %s seconds ---" % (time.time() - start_time))
