@@ -47,7 +47,6 @@ if __name__ == "__main__":
 
     ''' retreive the first 5 URLs '''  # need to sort based on the tf-idf
     
-    top_five = mergePostings(list_of_posting)[:5]  # return the first 5 URLst
+    top_five = mergePostings(list_of_posting) # return the first 5 URLst
     print(top_five)
-
     print("--- %s seconds ---" % (time.time() - start_time))
