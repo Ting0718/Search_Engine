@@ -28,9 +28,8 @@ if __name__ == "__main__":
     outputFile = "output.txt"
     f = open(outputFile, 'r')
 
+    queries = input("Enter Search: ").split()
     start_time = time.time()
-    queries = ["master", "of", "software", "engineering"]
-    #queries = ["machine", "learning"]
     q = sorted(queries)
     list_of_posting = []
 
