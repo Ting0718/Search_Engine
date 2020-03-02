@@ -12,12 +12,12 @@ def SetOfDocId(line: str):
     '''return a list of doc for a term'''
     s = set()
     for i in line.split(',')[1:]:
-        s.add(int(re.search(r"([0-9]+) ", i).group(1)))
+        s.add(int(i.split()[0]))
     return s
 
 def getToken(line: str) -> str:
     '''get the first token in each posting'''
-    return re.search(r"(\w+)", line).group(1)
+    return line.split(",")[0]
 
 def mergePostings(list_of_posting: list):
     '''merge a list of postings in inverted list'''
