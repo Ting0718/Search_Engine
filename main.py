@@ -14,7 +14,7 @@ blackList = ['[document]', 'noscript', 'head', 'header',
 MAX_INDEX_LENGTH = 15000 #max length of indexes before merge
 TOTAL_DOCUMENTS = 55392  # need to change
 TOAL_TOKENS = 1256389
-THREADS = 3 #how many threads will be used to scan documents
+THREADS = 1 #how many threads will be used to scan documents
 
 
 class DocID:
