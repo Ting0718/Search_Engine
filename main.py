@@ -8,7 +8,6 @@ from collections import defaultdict
 import threading
 import indexer
 import simhash
-import search
 
 blackList = ['[document]', 'noscript', 'head', 'header',
              'html', 'meta', 'input', 'script', 'style', 'b', 'button']
@@ -184,23 +183,20 @@ if __name__ == "__main__":
 
 
     '''Actually reading the JSON and merging the files into one output.txt'''
-    index = input("Index Files?(Y/N): ")
-    if(index == "Y"):
-        path = input("Enter Path Name")
+    path = input("Enter Path Name: ")
 
 
-        files = readFiles(path)
-        doc_id = DocID()
-        manager = IndexerManager(doc_id, files)
-        get_doc_lock = threading.Lock()
-        simhash_lock = threading.Lock()
-        indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager,
-                                    get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
-        for indexer in indexers:
-            indexer.start()
-        for indexer in indexers:
-            indexer.join()
-        mergeFiles(manager.partial_indexes)
-    else:
-        search.search() #look at search.py
+    files = readFiles(path)
+    doc_id = DocID()
+    manager = IndexerManager(doc_id, files)
+    get_doc_lock = threading.Lock()
+    simhash_lock = threading.Lock()
+    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager,
+                                get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
+    for indexer in indexers:
+        indexer.start()
+    for indexer in indexers:
+        indexer.join()
+    mergeFiles(manager.partial_indexes)
+   
     

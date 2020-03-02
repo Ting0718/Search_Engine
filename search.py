@@ -23,7 +23,7 @@ def mergePostings(list_of_posting: list):
     '''merge a list of postings in inverted list'''
     return list(set.intersection(*list_of_posting))
 
-def search():
+if __name__ == "__main__":
 
     outputFile = "output.txt"
     f = open(outputFile, 'r')
