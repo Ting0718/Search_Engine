@@ -8,8 +8,7 @@ from collections import defaultdict
 import threading
 import indexer
 import simhash
-import re
-import time
+import search
 
 blackList = ['[document]', 'noscript', 'head', 'header',
              'html', 'meta', 'input', 'script', 'style', 'b', 'button']
@@ -159,6 +158,10 @@ def mergeFiles(partialIndexes: list):
     for files in fileStorage:
         files.close()
 
+# def splitFiles(output:str):
+#     '''Splits the main output.txt into other smaller text files and puts those file names into a dictionary which it returns.'''
+
+
 
 def tf(tokenized_file: [str]):
     ''' calculate the tf and return as a list of tuples of (term,frequency) '''
@@ -171,82 +174,33 @@ def tf(tokenized_file: [str]):
         to_ret.append((k, v))
     return to_ret
 
-
 def idf(s: str):  # will do later
     '''IDF(t) = log_e(Total number of documents / Number of documents with term t in it).'''
 
-
-def porterstemmer(s: str):
-    '''porter stemmer'''
-    porter = PorterStemmer()
-    return (porter.stem(s))
-
-
-def getToken(line: str) -> str:
-    '''get the first token in each posting'''
-    return re.search(r"(\w+)", line).group(1)
-
-
-def SetOfDocId(line: str):
-    '''return a list of doc for a term'''
-    s = set()
-    for i in line.split(',')[1:]:
-        s.add(int(re.search(r"([0-9]+) ", i).group(1)))
-    return s
-
-
-def mergePostings(list_of_posting: list):
-    '''merge a list of postings in inverted list'''
-    return list(set.intersection(*list_of_posting))
-
-
 if __name__ == "__main__":
-     #path = "/Users/Scott/Desktop/DEV"
-    path = "/Users/shireenhsu/Desktop/121_Assignment3/DEV"
+    #path = "/Users/Scott/Desktop/DEV"
+    #path = "/Users/shireenhsu/Desktop/121_Assignment3/DEV"
+    #path = "/Users/jason/Desktop/ANALYST"
 
-    #path = "ANALYST"
-    '''
-    files = readFiles(path)
-    doc_id = DocID()
-    manager = IndexerManager(doc_id, files)
-    get_doc_lock = threading.Lock()
-    simhash_lock = threading.Lock()
-    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager,
-                                get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
-    for indexer in indexers:
-        indexer.start()
-    for indexer in indexers:
-        indexer.join()
-    mergeFiles(manager.partial_indexes)
-    '''
 
-    '''
-    queries = ["master", "of", "software", "engineering"]
-    #queries = ["machine", "learning"] -> doesn't work
-    q = sorted(queries)
-    list_of_posting = []
+    '''Actually reading the JSON and merging the files into one output.txt'''
+    index = input("Index Files?(Y/N): ")
+    if(index == "Y"):
+        path = input("Enter Path Name")
 
-    index = 0
-   
-    try:
-        for line in f:
-            if getToken(line) == porterstemmer(queries[index]):
-                list_of_posting.append(SetOfDocId(line))
-                index += 1
-    except IndexError:
-        pass
-    '''
-    output_path= "/Users/shireenhsu/Desktop/output/output.txt"
-    f = open(output_path, 'r')
-    with open("term_index.txt", "w") as term:
-        for line_number, line in enumerate(f, 1):
-	        term.write("{0} {1}".format(line_number, getToken(line)) + "\n")
 
-    ''' retreive the first 5 URLs '''  # need to sort based on the tf-idf
-    '''
-    top_five = mergePostings(list_of_posting)[:5]  # return the first 5 URLst
-    print(top_five)
-
-    start_time = time.time()
-    print("--- %s seconds ---" % (time.time() - start_time))
-    '''
+        files = readFiles(path)
+        doc_id = DocID()
+        manager = IndexerManager(doc_id, files)
+        get_doc_lock = threading.Lock()
+        simhash_lock = threading.Lock()
+        indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager,
+                                    get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
+        for indexer in indexers:
+            indexer.start()
+        for indexer in indexers:
+            indexer.join()
+        mergeFiles(manager.partial_indexes)
+    else:
+        search.search() #look at search.py
+    
