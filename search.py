@@ -1,4 +1,3 @@
-import re 
 from nltk.stem import PorterStemmer
 import os
 import time
@@ -36,11 +35,13 @@ if __name__ == "__main__":
     index = 0
     try:
         stemmed = porterstemmer(queries[index])
+        print(stemmed)
         for line in f:
             if getToken(line) == stemmed:
                 list_of_posting.append(SetOfDocId(line))
                 index += 1
                 stemmed = porterstemmer(queries[index])
+                print(stemmed)
     except IndexError:
         pass
 
