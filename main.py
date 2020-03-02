@@ -12,7 +12,7 @@ import simhash
 MAX_INDEX_LENGTH = 15000 #max length of indexes before merge
 TOTAL_DOCUMENTS = 55392  # need to change
 TOAL_TOKENS = 1256389
-THREADS = 3 #how many threads will be used to scan documents
+THREADS = 1 #how many threads will be used to scan documents
 
 
 class DocID:
@@ -75,7 +75,10 @@ class IndexerManager:
             self.simhashes.add(hashed_doc)
             return False
 
-
+def porterstemmer(s: str):
+    '''porter stemmer'''
+    porter = PorterStemmer()
+    return (porter.stem(s))
 
 def readFiles(mypath: str):
     '''parses through all files in the folder and returns a list of their file paths'''
@@ -178,7 +181,7 @@ def tf(tokenized_file: [str]):
     ''' calculate the tf and return as a list of tuples of (term,frequency) '''
     terms = defaultdict(int)
     for t in tokenized_file:
-        stemWord = PorterStemmer(t)
+        stemWord = porterstemmer(t)
         terms[stemWord] += 1
     to_ret = []
     for k, v in terms.items():
