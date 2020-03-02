@@ -185,7 +185,7 @@ def tf(tokenized_file: [str]):
     ''' calculate the tf and return as a list of tuples of (term,frequency) '''
     terms = defaultdict(int)
     for t in tokenized_file:
-        stemWord = porterstemmer(t)
+        stemWord = PorterStemmer(t)
         terms[stemWord] += 1
     to_ret = []
     for k, v in terms.items():
@@ -216,5 +216,6 @@ if __name__ == "__main__":
     for indexer in indexers:
         indexer.join() #waits for all indexer threads
     mergeFiles(manager.partial_indexes)
+    doc_id.write_doc_id("docID.json")
    
     
