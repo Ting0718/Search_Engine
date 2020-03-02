@@ -9,8 +9,6 @@ import threading
 import indexer
 import simhash
 
-blackList = ['[document]', 'noscript', 'head', 'header',
-             'html', 'meta', 'input', 'script', 'style', 'b', 'button']
 MAX_INDEX_LENGTH = 15000 #max length of indexes before merge
 TOTAL_DOCUMENTS = 55392  # need to change
 TOAL_TOKENS = 1256389
@@ -96,13 +94,8 @@ def parseFiles(filename: str):
     url = content["url"]
     html = content["content"] #splits the content fromurl
 
-    output = " "
     soup = BeautifulSoup(html, "lxml")
-    text = soup.find_all(text=True)
-    for t in text:
-        if t.parent.name not in blackList: #removes blacklisted tags from the considered content
-            output += '{} '.format(t)
-    output = tokenizer.tokenize(output) #tokenizes the output
+    output = tokenizer.tokenize(soup.get_text()) #tokenizes the output
     return output
 
 
