@@ -1,0 +1,53 @@
+import re 
+from nltk.stem import PorterStemmer
+import os
+import time
+
+def porterstemmer(s: str):
+    '''porter stemmer'''
+    porter = PorterStemmer()
+    return (porter.stem(s))
+
+def SetOfDocId(line: str):
+    '''return a list of doc for a term'''
+    s = set()
+    for i in line.split(',')[1:]:
+        s.add(int(re.search(r"([0-9]+) ", i).group(1)))
+    return s
+
+def getToken(line: str) -> str:
+    '''get the first token in each posting'''
+    return re.search(r"(\w+)", line).group(1)
+
+def mergePostings(list_of_posting: list):
+    '''merge a list of postings in inverted list'''
+    return list(set.intersection(*list_of_posting))
+
+def search():
+
+    outputFile = "output.txt"
+    f = open(outputFile, 'r')
+
+    start_time = time.time()
+    queries = ["master", "of", "software", "engineering"]
+    #queries = ["machine", "learning"]
+    q = sorted(queries)
+    list_of_posting = []
+
+    index = 0
+    try:
+        stemmed = porterstemmer(queries[index])
+        for line in f:
+            if getToken(line) == stemmed:
+                list_of_posting.append(SetOfDocId(line))
+                index += 1
+                stemmed = porterstemmer(queries[index])
+    except IndexError:
+        pass
+
+    ''' retreive the first 5 URLs '''  # need to sort based on the tf-idf
+    
+    top_five = mergePostings(list_of_posting)[:5]  # return the first 5 URLst
+    print(top_five)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
