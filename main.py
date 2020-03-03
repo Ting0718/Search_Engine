@@ -62,6 +62,10 @@ class IndexerManager:
         else:
             return False
 
+    def docid_file_to_url(self,id,url):
+        '''helper method to replace the file in docid manager with the url to avoid opening file twice'''
+        self.doc_id_tracker.doc_ids[id] = url
+
     def add_partial_index(self, index):
         ''' adds the filename of a written partial index to partial index list'''
         self.partial_indexes.append(index)
@@ -99,7 +103,7 @@ def parseFiles(filename: str):
 
     soup = BeautifulSoup(html, "lxml")
     output = tokenizer.tokenize(soup.get_text()) #tokenizes the output
-    return output
+    return url,output
 
 
 def writeFile(inverted_index: dict, filename: str):
@@ -185,7 +189,7 @@ def splitFiles(filename:str):
 
     with open(filename,"r") as f:
         for line in f:
-            print(f"{cursor}: {line}")
+            #print(f"{cursor}: {line}")
             character = line[0]
             if character > split[cursor]:
                 cursor += 1
@@ -214,24 +218,25 @@ if __name__ == "__main__":
     #path = "/Users/Scott/Desktop/DEV"
     #path = "/Users/shireenhsu/Desktop/121_Assignment3/DEV"
     #path = "/Users/jason/Desktop/ANALYST"
+    #path = "ANALYST"
 
 
-    '''Actually reading the JSON and merging the files into one output.txt'''
-    # path = input("Enter Path Name: ")
+    #Actually reading the JSON and merging the files into one output.txt
+    path = input("Enter Path Name: ")
 
-    # files = readFiles(path)
-    # doc_id = DocID()
-    # manager = IndexerManager(doc_id, files)
-    # get_doc_lock = threading.Lock()
-    # simhash_lock = threading.Lock()
-    # indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager, #creates and instntiates indexers based on THREADS constant
-    #                             get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
-    # for indexer in indexers:
-    #     indexer.start() #starts all indexer threads
-    # for indexer in indexers:
-    #     indexer.join() #waits for all indexer threads
-    # mergeFiles(manager.partial_indexes)
-    # doc_id.write_doc_id("docID.json")
+    files = readFiles(path)
+    doc_id = DocID()
+    manager = IndexerManager(doc_id, files)
+    get_doc_lock = threading.Lock()
+    simhash_lock = threading.Lock()
+    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager, #creates and instntiates indexers based on THREADS constant
+                                get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
+    for indexer in indexers:
+        indexer.start() #starts all indexer threads
+    for indexer in indexers:
+        indexer.join() #waits for all indexer threads
+    mergeFiles(manager.partial_indexes)
+    doc_id.write_doc_id("docID.json")
     splitFiles("output.txt")
     
    

@@ -1,6 +1,7 @@
 from nltk.stem import PorterStemmer
 import os
 import time
+import json
 
 def porterstemmer(s: str):
     '''porter stemmer'''
@@ -22,8 +23,15 @@ def mergePostings(list_of_posting: list):
     '''merge a list of postings in inverted list'''
     return list(set.intersection(*list_of_posting))
 
+def translate_ids(id_dict:dict,id_list):
+    ret = []
+    for id in id_list:
+        ret.append(id_dict[str(id)])
+    return ret
+
 if __name__ == "__main__":
 
+    docIds = json.load(open("docID.json",'r'))
     split = ["9",'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
     files = {}
     for x in split:
@@ -51,6 +59,6 @@ if __name__ == "__main__":
     #         stemmed = q[index]
     # f.close()
     
-    top_five = mergePostings(list_of_posting)[:5] # return the first 5 URLst
+    top_five = translate_ids(docIds,mergePostings(list_of_posting)[:5]) # return the first 5 URLst
     print(top_five)
     print("--- %s seconds ---" % (time.time() - start_time))

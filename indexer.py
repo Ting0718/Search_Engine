@@ -26,7 +26,9 @@ class Indexer(threading.Thread):
                 if page == False:
                     self.dump_index()
                     return
-                list_of_tokens = main.tf(main.parseFiles(page[0]))
+                url,html = main.parseFiles(page[0])
+                list_of_tokens = main.tf(html)
+                self.manager.docid_file_to_url(page[1],url)
                 self.simhash_lock.acquire()
                 if len(list_of_tokens) > 25 and not self.manager.check_simhash(list_of_tokens):
                     self.simhash_lock.release()
