@@ -8,10 +8,12 @@ from collections import defaultdict
 import threading
 import indexer
 import simhash
+import math
+import search
 
 MAX_INDEX_LENGTH = 15000 #max length of indexes before merge
-TOTAL_DOCUMENTS = 55392  # need to change
-TOAL_TOKENS = 1256389
+TOTAL_DOCUMENTS = 55392
+TOTAL_TOKENS = 1103454
 THREADS = 1 #how many threads will be used to scan documents
 
 
@@ -196,10 +198,6 @@ def splitFiles(filename:str):
             fileStorage[cursor].write(line)
             
 
-
-
-
-
 def tf(tokenized_file: [str]):
     ''' calculate the tf and return as a list of tuples of (term,frequency) '''
     terms = defaultdict(int)
@@ -211,17 +209,27 @@ def tf(tokenized_file: [str]):
         to_ret.append((k, v))
     return to_ret
 
-def idf(s: str):  # will do later
-    '''IDF(t) = log_e(Total number of documents / Number of documents with term t in it).'''
+def idf(term: str): # need to write to output.txt????
+    file = "outputs/output" + term[0] + ".txt"
+    '''IDF(t) = log_10(Total number of documents / Number of documents with term t in it).'''
+    try:
+        with open(file, 'r') as f:
+            for line in f:
+                if search.getToken(line) == porterstemmer(term):
+                    num_of_doc = len(search.SetOfDocId(line))
+                    break
+        
+        return round(math.log10(TOTAL_DOCUMENTS/num_of_doc), 3) # round to only 3 decimals to save spaces
+    except:
+        return 0 # there is no such term || the length is zero
 
 if __name__ == "__main__":
     #path = "/Users/Scott/Desktop/DEV"
     #path = "/Users/shireenhsu/Desktop/121_Assignment3/DEV"
     #path = "/Users/jason/Desktop/ANALYST"
-    #path = "ANALYST"
-
 
     #Actually reading the JSON and merging the files into one output.txt
+    
     path = input("Enter Path Name: ")
 
     files = readFiles(path)
