@@ -2,7 +2,7 @@ from nltk.stem import PorterStemmer
 import os
 import time
 import json
-
+import binarySearch
 
 def porterstemmer(s: str):
     '''porter stemmer'''
@@ -31,37 +31,25 @@ def translate_ids(id_dict:dict,id_list):
     return ret
 
 def search_result(queries:list):
+    queries = [porterstemmer(x) for x in queries]
+    start_time = time.time()
     docIds = json.load(open("docID.json",'r'))
-    split = ["9",'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-    files = {}
-    for x in split:
-        files[x] = f"outputs/output{x}.txt"
+    index = json.load(open("indexindex.json",'r'))
+    keys = sorted(index.keys())
+    list_of_posting = []
 
-    while True:
-        queries = [porterstemmer(x) for x in input("Enter Search: ").split()]
-        start_time = time.time()
-        q = sorted(queries)
-        list_of_posting = []
-        ''' Time could be improved if you don't open the file evertime, or open it once for each start letter.'''
-        fileStorage = []
-        for query in q:
-            with open(files[query[0]],'r') as f:
-                for line in f:
-                    if getToken(line) == query:
-                        list_of_posting.append(SetOfDocId(line))
-        # f = open("output.txt",'r')
-        # index = 0
-        # for line in f:
-        #     if getToken(line) == q[index]:
-        #         list_of_posting.append(SetOfDocId(line))
-        #         index += 1
-        #         if(index >= len(q)):
-        #             break
-        #         stemmed = q[index]
-        # f.close()
-
-        top_five = translate_ids(docIds,mergePostings(list_of_posting)[:5]) # return the first 5 URLst
-        print(top_five)
-        print("--- %s seconds ---" % (time.time() - start_time))
-        if input("search again: (y/n) ") == "n":
-            break
+    with open("output.txt",'r') as f:
+        for x in queries:
+            print(x)
+            closest = binarySearch.search(keys,x)
+            offset = index[keys[closest]]
+            f.seek(offset)
+            for line in f:
+                if(line.split()[0] == x):
+                    list_of_posting.append(SetOfDocId(line))
+                    break
+            f.seek(0)
+    print(list_of_posting)
+    top_five = translate_ids(docIds,mergePostings(list_of_posting)[:5]) # return the first 5 URLst
+    print(top_five)
+    return top_five + [time()-start_time]
