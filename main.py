@@ -1,3 +1,5 @@
+#TOTAL_DOCUMENTS = 55392
+#TOAL_TOKENS = 1256389
 import os
 import nltk
 from nltk.stem import PorterStemmer
@@ -9,9 +11,9 @@ import threading
 import indexer
 import simhash
 
+
+#constants
 MAX_INDEX_LENGTH = 15000 #max length of indexes before merge
-TOTAL_DOCUMENTS = 55392  # need to change
-TOAL_TOKENS = 1256389
 THREADS = 1 #how many threads will be used to scan documents
 
 
@@ -215,14 +217,14 @@ def idf(s: str):  # will do later
     '''IDF(t) = log_e(Total number of documents / Number of documents with term t in it).'''
 
 if __name__ == "__main__":
-    #path = "/Users/Scott/Desktop/DEV"
+    path = "/Users/Scott/Desktop/DEV"
     #path = "/Users/shireenhsu/Desktop/121_Assignment3/DEV"
     #path = "/Users/jason/Desktop/ANALYST"
     #path = "ANALYST"
 
 
     #Actually reading the JSON and merging the files into one output.txt
-    path = input("Enter Path Name: ")
+    #path = input("Enter Path Name: ")
 
     files = readFiles(path)
     doc_id = DocID()
