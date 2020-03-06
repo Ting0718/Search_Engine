@@ -1,3 +1,4 @@
+*.pyc
 outputs
 output.txt
 partial(thread1).txt
