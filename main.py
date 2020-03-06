@@ -179,26 +179,43 @@ def mergeFiles(partialIndexes: list):
 
     for files in fileStorage:
         files.close()        
-
-def splitFiles(filename:str):
-    '''Splits the main output.txt into other smaller text files and puts those file names into a dictionary which it returns.'''
-    split = ["9",'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-    cursor = 0
-    #creates 27 files
-    fileStorage = []
-    for x in split:
-        open(f"outputs/output{x}.txt" , 'w')
-        fileStorage.append(open(f"outputs/output{x}.txt" , 'a'))
+'''Code no longer needed for optimization'''
+# def splitFiles(filename:str):
+#     '''Splits the main output.txt into other smaller text files and puts those file names into a dictionary which it returns.'''
+#     split = ["9",'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+#     cursor = 0
+#     #creates 27 files
+#     fileStorage = []
+#     for x in split:
+#         open(f"outputs/output{x}.txt" , 'w')
+#         fileStorage.append(open(f"outputs/output{x}.txt" , 'a'))
     
 
-    with open(filename,"r") as f:
-        for line in f:
-            #print(f"{cursor}: {line}")
-            character = line[0]
-            if character > split[cursor]:
-                cursor += 1
-            fileStorage[cursor].write(line)
-            
+#     with open(filename,"r") as f:
+#         for line in f:
+#             #print(f"{cursor}: {line}")
+#             character = line[0]
+#             if character > split[cursor]:
+#                 cursor += 1
+#             fileStorage[cursor].write(line)
+
+def indexIndex(filename:str, outputname:str):
+    '''Creates a json file containing every 20th term and a offset value to the to the function'''
+    indexer = {}
+    counter = 19
+    with open(filename,'r') as f:
+        for line in iter(f.readline, ''):
+            if counter == 19:
+                offset = f.tell()
+                line = line.split()
+                indexer[line[0]] = offset
+                counter = 0
+            else:
+                counter += 1
+    with open(outputname,'w') as f:
+        json.dump(indexer,f)
+    
+    
 
 def tf(tokenized_file: [str]):
     ''' calculate the tf and return as a list of tuples of (term,frequency) '''
@@ -232,22 +249,22 @@ if __name__ == "__main__":
 
     #Actually reading the JSON and merging the files into one output.txt
     
-    path = input("Enter Path Name: ")
+    # path = input("Enter Path Name: ")
 
-    files = readFiles(path)
-    doc_id = DocID()
-    manager = IndexerManager(doc_id, files)
-    get_doc_lock = threading.Lock()
-    simhash_lock = threading.Lock()
-    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager, #creates and instntiates indexers based on THREADS constant
-                                get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
-    for indexer in indexers:
-        indexer.start() #starts all indexer threads
-    for indexer in indexers:
-        indexer.join() #waits for all indexer threads
-    mergeFiles(manager.partial_indexes)
-    doc_id.write_doc_id("docID.json")
-    splitFiles("output.txt")
+    # files = readFiles(path)
+    # doc_id = DocID()
+    # manager = IndexerManager(doc_id, files)
+    # get_doc_lock = threading.Lock()
+    # simhash_lock = threading.Lock()
+    # indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager, #creates and instntiates indexers based on THREADS constant
+    #                             get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
+    # for indexer in indexers:
+    #     indexer.start() #starts all indexer threads
+    # for indexer in indexers:
+    #     indexer.join() #waits for all indexer threads
+    # mergeFiles(manager.partial_indexes)
+    # doc_id.write_doc_id("docID.json")
+    indexIndex("output.txt", "indexindex.json")
     
    
     
