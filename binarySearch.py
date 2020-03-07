@@ -20,7 +20,8 @@ def search(content:list,item, max_iterations = 26):
             left = mid
             mid = left + int((right - left) / 2)
         iterations += 1
-    if item < content[mid]:
+
+    if item < content[mid] and mid != 0:
         return mid+1
     return mid
 
