@@ -44,12 +44,12 @@ def search_result(queries:str):
     with open("output.txt",'r') as f:
         for x in queries:
             closest = binarySearch.search(keys,x)
-            print(keys[closest])
             offset = index[keys[closest]]
             f.seek(offset)
-            for x in range(20):
+            for y in range(20):
                 line = f.readline()
-                #print(line)
+                print(x)
+                print(line)
                 if(line.split(',')[0] == x):
                     print("match")
                     list_of_posting.append(SetOfDocId(line))
