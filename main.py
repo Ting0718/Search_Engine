@@ -62,13 +62,14 @@ class IndexerManager:
         if self.current_url < len(self.files):
             self.current_url += 1
             page = self.files[self.current_url-1]
-            return (page, self.doc_id_tracker.add_to_docs(page)) #returns (docContent,docID)
+            return page #returns docContent
         else:
             return False
 
-    def docid_file_to_url(self,id,url):
+    def docid_file_to_url(self,url):
         '''helper method to replace the file in docid manager with the url to avoid opening file twice'''
-        self.doc_id_tracker.doc_ids[id] = url
+        return self.doc_id_tracker.add_to_docs(url)
+
 
     def add_partial_index(self, index):
         ''' adds the filename of a written partial index to partial index list'''
@@ -232,6 +233,7 @@ def idf(term: str): # need to write to output.txt????
     file = "outputs/output" + term[0] + ".txt"
     '''IDF(t) = log_10(Total number of documents / Number of documents with term t in it).'''
     try:
+        num_of_doc = 0
         with open(file, 'r') as f:
             for line in f:
                 if search.getToken(line) == porterstemmer(term):
