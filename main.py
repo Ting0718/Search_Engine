@@ -202,7 +202,7 @@ def mergeFiles(partialIndexes: list):
 def indexIndex(filename:str, outputname:str):
     '''Creates a json file containing every 20th term and a offset value to the to the function'''
     indexer = {}
-    counter = 19
+    counter = 0
     with open(filename,'r') as f:
         for line in iter(f.readline, ''):
             if counter == 19:

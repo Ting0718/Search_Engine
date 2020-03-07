@@ -22,6 +22,8 @@ def getToken(line: str) -> str:
 
 def mergePostings(list_of_posting: list):
     '''merge a list of postings in inverted list'''
+    if len(list_of_posting) == 0:
+        return []
     return list(set.intersection(*list_of_posting))
 
 def translate_ids(id_dict:dict,id_list):
@@ -30,7 +32,8 @@ def translate_ids(id_dict:dict,id_list):
         ret.append(id_dict[str(id)])
     return ret
 
-def search_result(queries:list):
+def search_result(queries:str):
+    queries = queries.split()
     queries = [porterstemmer(x) for x in queries]
     start_time = time.time()
     docIds = json.load(open("docID.json",'r'))
@@ -40,16 +43,20 @@ def search_result(queries:list):
 
     with open("output.txt",'r') as f:
         for x in queries:
-            print(x)
             closest = binarySearch.search(keys,x)
+            print(keys[closest])
             offset = index[keys[closest]]
             f.seek(offset)
-            for line in f:
-                if(line.split()[0] == x):
+            for x in range(20):
+                line = f.readline()
+                #print(line)
+                if(line.split(',')[0] == x):
+                    print("match")
                     list_of_posting.append(SetOfDocId(line))
                     break
+            print("New Term")
             f.seek(0)
     print(list_of_posting)
     top_five = translate_ids(docIds,mergePostings(list_of_posting)[:5]) # return the first 5 URLst
     print(top_five)
-    return top_five + [time()-start_time]
+    return top_five + [time.time()-start_time]
