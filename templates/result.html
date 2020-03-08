@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ICS Search Result</title>
+    </head>
+    <body>
+        <p>about 5 results ({{time}} seconds) </p>
+        <center>
+            <h2>Your searched for "{{queries}}"</h2>
+            <h1>TOP FIVE URLS</h1> <br>
+            <table>
+                {% for item in top_five_urls %}
+                <ol>
+                    <a href={{item}}>{{item}}</a>
+                </ol>
+                {% endfor %}
+            </table>
+        </center>
+    </body>
+</html>
