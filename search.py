@@ -1,6 +1,8 @@
 from nltk.stem import PorterStemmer
 import os
 import time
+import json
+import binarySearch
 
 def porterstemmer(s: str):
     '''porter stemmer'''
@@ -20,28 +22,41 @@ def getToken(line: str) -> str:
 
 def mergePostings(list_of_posting: list):
     '''merge a list of postings in inverted list'''
+    if len(list_of_posting) == 0:
+        return []
     return list(set.intersection(*list_of_posting))
 
-if __name__ == "__main__":
+def translate_ids(id_dict:dict,id_list):
+    ret = []
+    for id in id_list:
+        ret.append(id_dict[str(id)])
+    return ret
 
-    outputFile = "output.txt"
-    f = open(outputFile, 'r')
-
-    queries = input("Enter Search: ").split()
+def search_result(queries:str):
+    queries = queries.split()
+    queries = [porterstemmer(x) for x in queries]
     start_time = time.time()
-    q = sorted(queries)
+    docIds = json.load(open("docID.json",'r'))
+    index = json.load(open("indexindex.json",'r'))
+    keys = sorted(index.keys())
     list_of_posting = []
 
-    index = 0
-    stemmed = porterstemmer(q[index])
-    for line in f:
-        if getToken(line) == stemmed:
-            list_of_posting.append(SetOfDocId(line))
-            index += 1
-            if(index >= len(q)):
-                break
-            stemmed = porterstemmer(q[index])
-    
-    top_five = mergePostings(list_of_posting)[:5] # return the first 5 URLst
+    with open("output.txt",'r') as f:
+        for x in queries:
+            closest = binarySearch.search(keys,x)
+            offset = index[keys[closest]]
+            f.seek(offset)
+            for y in range(20):
+                line = f.readline()
+                print(x)
+                print(line)
+                if(line.split(',')[0] == x):
+                    print("match")
+                    list_of_posting.append(SetOfDocId(line))
+                    break
+            print("New Term")
+            f.seek(0)
+    print(list_of_posting)
+    top_five = translate_ids(docIds,mergePostings(list_of_posting)[:5]) # return the first 5 URLst
     print(top_five)
-    print("--- %s seconds ---" % (time.time() - start_time))
+    return top_five + [time.time()-start_time]

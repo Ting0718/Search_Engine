@@ -8,7 +8,6 @@ def tokenize(text: str) -> [str]:
     are separated by spaces or non-alphanumeric characters in the original text.
     if the file path does not exist returns an empty list
     """
-    token_list = []
     text = re.sub(r"[^a-zA-Z0-9]+"," ",text)
     text = text.strip()
     #text = re.sub(r"[\w]+"," ",text)

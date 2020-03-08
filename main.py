@@ -1,3 +1,5 @@
+#TOTAL_DOCUMENTS = 55392
+#TOAL_TOKENS = 1256389
 import os
 import nltk
 from nltk.stem import PorterStemmer
@@ -8,11 +10,13 @@ from collections import defaultdict
 import threading
 import indexer
 import simhash
+import search
+import math
 
-MAX_INDEX_LENGTH = 15000 #max length of indexes before merge
-TOTAL_DOCUMENTS = 55392  # need to change
-TOAL_TOKENS = 1256389
-THREADS = 1 #how many threads will be used to scan documents
+#constants
+MAX_INDEX_LENGTH = 15000  # max length of indexes before merge
+THREADS = 1  # how many threads will be used to scan documents
+TOTAL_DOCUMENTS = 51187  # how many docs in total
 
 
 class DocID:
@@ -20,6 +24,7 @@ class DocID:
     class to keep track of document Id numbers
     Add to docs will add a document to a local dictionary of id:url and will return the id number used for that url
     '''
+
     def __init__(self):
         self.current_doc = 0
         self.doc_ids = dict()
@@ -30,11 +35,10 @@ class DocID:
         self.current_doc += 1
         return self.current_doc - 1
 
-    def write_doc_id(self,filename="docid.json"):
+    def write_doc_id(self, filename="docid.json"):
         '''writes the content of docId dictionary to a json file'''
-        with open(filename,'w') as out:
-            json.dump(self.doc_ids,out)
-
+        with open(filename, 'w') as out:
+            json.dump(self.doc_ids, out)
 
 
 class IndexerManager:
@@ -42,6 +46,7 @@ class IndexerManager:
     class to manage indexer threads, contains simhash manager, a list of partial indexes and a document id tracker
     also contains the current url numerically indexed
     '''
+
     def __init__(self, doc_id_track, files):
         self.current_url = 0
         self.doc_id_tracker = doc_id_track
@@ -58,9 +63,13 @@ class IndexerManager:
         if self.current_url < len(self.files):
             self.current_url += 1
             page = self.files[self.current_url-1]
-            return (page, self.doc_id_tracker.add_to_docs(page)) #returns (docContent,docID)
+            return page  # returns docContent
         else:
             return False
+
+    def docid_file_to_url(self, url):
+        '''helper method to replace the file in docid manager with the url to avoid opening file twice'''
+        return self.doc_id_tracker.add_to_docs(url)
 
     def add_partial_index(self, index):
         ''' adds the filename of a written partial index to partial index list'''
@@ -75,10 +84,12 @@ class IndexerManager:
             self.simhashes.add(hashed_doc)
             return False
 
+
 def porterstemmer(s: str):
     '''porter stemmer'''
     porter = PorterStemmer()
     return (porter.stem(s))
+
 
 def readFiles(mypath: str):
     '''parses through all files in the folder and returns a list of their file paths'''
@@ -95,11 +106,11 @@ def parseFiles(filename: str):
     content = json.load(f)
 
     url = content["url"]
-    html = content["content"] #splits the content fromurl
+    html = content["content"]  # splits the content fromurl
 
     soup = BeautifulSoup(html, "lxml")
-    output = tokenizer.tokenize(soup.get_text()) #tokenizes the output
-    return output
+    output = tokenizer.tokenize(soup.get_text())  # tokenizes the output
+    return url, output
 
 
 def writeFile(inverted_index: dict, filename: str):
@@ -172,9 +183,42 @@ def mergeFiles(partialIndexes: list):
     for files in fileStorage:
         files.close()
 
-# def splitFiles(output:str):
-#     '''Splits the main output.txt into other smaller text files and puts those file names into a dictionary which it returns.'''
 
+'''Code no longer needed for optimization'''
+# def splitFiles(filename:str):
+#     '''Splitgs the main output.txt into other smaller text files and puts those file names into a dictionary which it returns.'''
+#     split = ["9",'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+#     cursor = 0
+#     #creates 27 files
+#     fileStorage = []
+#     for x in split:
+#         open(f"outputs/output{x}.txt" , 'w')
+#         fileStorage.append(open(f"outputs/output{x}.txt" , 'a'))
+
+
+#     with open(filename,"r") as f:
+#         for line in f:
+#             #print(f"{cursor}: {line}")
+#             character = line[0]
+#             if character > split[cursor]:
+#                 cursor += 1
+#             fileStorage[cursor].write(line)
+
+def indexIndex(filename: str, outputname: str):
+    '''Creates a json file containing every 20th term and a offset value to the to the function'''
+    indexer = {}
+    counter = 0
+    with open(filename, 'r') as f:
+        for line in iter(f.readline, ''):
+            if counter == 19:
+                offset = f.tell()
+                line = line.split()
+                indexer[line[0]] = offset
+                counter = 0
+            else:
+                counter += 1
+    with open(outputname, 'w') as f:
+        json.dump(indexer, f)
 
 
 def tf(tokenized_file: [str]):
@@ -188,30 +232,69 @@ def tf(tokenized_file: [str]):
         to_ret.append((k, v))
     return to_ret
 
-def idf(s: str):  # will do later
-    '''IDF(t) = log_e(Total number of documents / Number of documents with term t in it).'''
+
+def tf_as_dict(tokenized_file: [str]):
+    ''' calculate the tf and return as a dictionary'''
+    terms = defaultdict(int)
+    for t in tokenized_file:
+        stemWord = porterstemmer(t)
+        terms[stemWord] += 1
+    return terms
+
+
+def idf(term: str):  # need to write to output.txt????
+    file = "outputs/output" + term[0] + ".txt"
+    '''IDF(t) = log_10(Total number of documents / Number of documents with term t in it).'''
+    try:
+        num_of_doc = 0
+        with open(file, 'r') as f:
+            for line in f:
+                if search.getToken(line) == porterstemmer(term):
+                    num_of_doc = len(search.SetOfDocId(line))
+                    break
+
+        # round to only 3 decimals to save spaces
+        return round(math.log10(TOTAL_DOCUMENTS/num_of_doc), 3)
+    except:
+        return 0  # there is no such term || the length is zero
+
+
+def tf_idf(url, tokenized_file: [str]):
+    '''return a list that the first element = the url, and second = a list of tf_idf'''
+    d = [url, []]
+    for t in (tokenized_file):
+        d[1].append(round(tf_as_dict(tokenized_file)[t] * idf(t), 3))
+    return d
+
 
 if __name__ == "__main__":
     #path = "/Users/Scott/Desktop/DEV"
     #path = "/Users/shireenhsu/Desktop/121_Assignment3/DEV"
     #path = "/Users/jason/Desktop/ANALYST"
 
+    #Actually reading the JSON and merging the files into one output.txt
 
-    '''Actually reading the JSON and merging the files into one output.txt'''
-    path = input("Enter Path Name: ")
+    # path = input("Enter Path Name: ")
 
-    files = readFiles(path)
-    doc_id = DocID()
-    manager = IndexerManager(doc_id, files)
-    get_doc_lock = threading.Lock()
-    simhash_lock = threading.Lock()
-    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager, #creates and instntiates indexers based on THREADS constant
-                                get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
-    for indexer in indexers:
-        indexer.start() #starts all indexer threads
-    for indexer in indexers:
-        indexer.join() #waits for all indexer threads
-    mergeFiles(manager.partial_indexes)
-    doc_id.write_doc_id("docID.json")
+    # files = readFiles(path)
+    # doc_id = DocID()
+    # manager = IndexerManager(doc_id, files)
+    # get_doc_lock = threading.Lock()
+    # simhash_lock = threading.Lock()
+    # indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager, #creates and instntiates indexers based on THREADS constant
+    #                             get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
+    # for indexer in indexers:
+    #     indexer.start() #starts all indexer threads
+    # for indexer in indexers:
+    #     indexer.join() #waits for all indexer threads
+    # mergeFiles(manager.partial_indexes)
+    # doc_id.write_doc_id("docID.json")
+    #indexIndex("output.txt", "indexindex.json")
+
+    tokens = parseFiles(
+        "/Users/shireenhsu/Desktop/CS121/Assignment3/121_Assignment3/DEV/alderis_ics_uci_edu/0f274aaa945c05641a9677b951c32026bb201ec9aeb6e691fedd1235b3a5d6af.json")
+
+    tf_idf(tokens[0], tokens[1])
+    
    
     
