@@ -26,19 +26,19 @@ class Indexer(threading.Thread):
                 if page == False:
                     self.dump_index()
                     return
-                url,html = main.parseFiles(page[0])
+                url,html = main.parseFiles(page)
                 list_of_tokens = main.tf(html)
-                self.manager.docid_file_to_url(page[1],url)
                 self.simhash_lock.acquire()
                 if len(list_of_tokens) > 25 and not self.manager.check_simhash(list_of_tokens):
+                    index_num = self.manager.docid_file_to_url(url)
                     self.simhash_lock.release()
                     for token in list_of_tokens:
-                        self.index[token[0]].append((page[1], token[1]))
+                        self.index[token[0]].append((index_num, token[1]))
                     self.indexed += 1
-                    print("THREAD: " + str(self.thread_id) + " INDEXED: " + page[0] + " " + str(page[1]))
+                    print("THREAD: " + str(self.thread_id) + " INDEXED: " + page + " " + str(index_num))
                 else:
                     self.simhash_lock.release()
-                    print("THREAD: " + str(self.thread_id) + " SIMHASH SKIPPED: " + page[0] + " " + str(page[1]))
+                    print("THREAD: " + str(self.thread_id) + " SIMHASH SKIPPED: " + page)
 
 
     def dump_index(self):
