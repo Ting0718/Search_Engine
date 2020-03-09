@@ -232,16 +232,6 @@ def tf(tokenized_file: [str]):
         to_ret.append((k, v))
     return to_ret
 
-
-def tf_as_dict(tokenized_file: [str]):
-    ''' calculate the tf and return as a dictionary'''
-    terms = defaultdict(int)
-    for t in tokenized_file:
-        stemWord = porterstemmer(t)
-        terms[stemWord] += 1
-    return terms
-
-
 def idf(term: str):  # need to write to output.txt????
     file = "outputs/output" + term[0] + ".txt"
     '''IDF(t) = log_10(Total number of documents / Number of documents with term t in it).'''
@@ -258,13 +248,6 @@ def idf(term: str):  # need to write to output.txt????
     except:
         return 0  # there is no such term || the length is zero
 
-
-def tf_idf(url, tokenized_file: [str]):
-    '''return a list that the first element = the url, and second = a list of tf_idf'''
-    d = [url, []]
-    for t in (tokenized_file):
-        d[1].append(round(tf_as_dict(tokenized_file)[t] * idf(t), 3))
-    return d
 
 
 if __name__ == "__main__":
@@ -291,10 +274,6 @@ if __name__ == "__main__":
     # doc_id.write_doc_id("docID.json")
     #indexIndex("output.txt", "indexindex.json")
 
-    tokens = parseFiles(
-        "/Users/shireenhsu/Desktop/CS121/Assignment3/121_Assignment3/DEV/alderis_ics_uci_edu/0f274aaa945c05641a9677b951c32026bb201ec9aeb6e691fedd1235b3a5d6af.json")
-
-    tf_idf(tokens[0], tokens[1])
     
    
     
