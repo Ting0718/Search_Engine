@@ -249,21 +249,21 @@ if __name__ == "__main__":
 
     #Actually reading the JSON and merging the files into one output.txt
     
-    # path = input("Enter Path Name: ")
+    path = input("Enter Path Name: ")
 
-    # files = readFiles(path)
-    # doc_id = DocID()
-    # manager = IndexerManager(doc_id, files)
-    # get_doc_lock = threading.Lock()
-    # simhash_lock = threading.Lock()
-    # indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager, #creates and instntiates indexers based on THREADS constant
-    #                             get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
-    # for indexer in indexers:
-    #     indexer.start() #starts all indexer threads
-    # for indexer in indexers:
-    #     indexer.join() #waits for all indexer threads
-    # mergeFiles(manager.partial_indexes)
-    # doc_id.write_doc_id("docID.json")
+    files = readFiles(path)
+    doc_id = DocID()
+    manager = IndexerManager(doc_id, files)
+    get_doc_lock = threading.Lock()
+    simhash_lock = threading.Lock()
+    indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager, #creates and instntiates indexers based on THREADS constant
+                                get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
+    for indexer in indexers:
+        indexer.start() #starts all indexer threads
+    for indexer in indexers:
+        indexer.join() #waits for all indexer threads
+    mergeFiles(manager.partial_indexes)
+    doc_id.write_doc_id("docID.json")
     indexIndex("output.txt", "indexindex.json")
     
    
