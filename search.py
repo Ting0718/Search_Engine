@@ -33,9 +33,9 @@ def translate_ids(id_dict:dict,id_list):
     return ret
 
 def search_result(queries:str):
+    start_time = time.time()
     queries = queries.split()
     queries = [porterstemmer(x) for x in queries]
-    start_time = time.time()
     docIds = json.load(open("docID.json",'r'))
     index = json.load(open("indexindex.json",'r'))
     keys = sorted(index.keys())
@@ -48,15 +48,9 @@ def search_result(queries:str):
             f.seek(offset)
             for y in range(20):
                 line = f.readline()
-                print(x)
-                print(line)
                 if(line.split(',')[0] == x):
-                    print("match")
                     list_of_posting.append(SetOfDocId(line))
                     break
-            print("New Term")
             f.seek(0)
-    print(list_of_posting)
     top_five = translate_ids(docIds,mergePostings(list_of_posting)[:5]) # return the first 5 URLst
-    print(top_five)
     return top_five + [time.time()-start_time]
