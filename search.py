@@ -52,7 +52,5 @@ def search_result(queries:str):
                     list_of_posting.append(SetOfDocId(line))
                     break
             f.seek(0)
-    print(list_of_posting)
     top_five = translate_ids(docIds,mergePostings(list_of_posting)[:5]) # return the first 5 URLst
-    print(top_five)
     return top_five + [time.time()-start_time]
