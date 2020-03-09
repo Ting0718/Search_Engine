@@ -13,6 +13,7 @@ import simhash
 import search
 import math
 
+
 #constants
 MAX_INDEX_LENGTH = 15000  # max length of indexes before merge
 THREADS = 1  # how many threads will be used to scan documents

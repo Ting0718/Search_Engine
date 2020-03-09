@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
+    <body background="{{url_for('static', filename='petr.jpg')}}"></body>
     <head>
         <title>ICS Search Engine</title>
-        <link href= "design.css" rel="stylesheet" type="text/css">
     </head>
 
     <body>
+
         <center>
 
             <! --- Logo --->
@@ -13,9 +14,13 @@
                 <span style="color:blue">ICS.SEARCH</span>
             </h1>
 
-            <form name= "passdata" action="." method="post">
+            <form clas= "Search" action="." method="post">
                 <label>Queries</label>
-                <input type="search" name="queries" size="70/"><br>
+                <input type="search" name="queries" size="70"><br>
+                
+                <label>Number of Results</label>
+                <input type="number" value="5" name="numOfResults" size = "70"><br>
+
                 <input type="submit" value="Search">
                 <input type="reset">
             </form>

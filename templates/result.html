@@ -4,12 +4,12 @@
         <title>ICS Search Result</title>
     </head>
     <body>
-        <p>about 5 results ({{time}} seconds) </p>
+        <p>about {{actual_results}} results ({{time}} seconds) </p>
         <center>
             <h2>Your searched for "{{queries}}"</h2>
-            <h1>TOP FIVE URLS</h1> <br>
+            <h1>TOP {{actual_results}} URLS</h1> <br>
             <table>
-                {% for item in top_five_urls %}
+                {% for item in results %}
                 <ol>
                     <a href={{item}}>{{item}}</a>
                 </ol>
