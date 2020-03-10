@@ -47,6 +47,7 @@ def cosineScore(queries:list, docIds:dict) -> list:
     keys = sorted(index.keys())
     Scores = defaultdict(int)
     Magnitude = defaultdict(int)
+    doc_length = len(docIds.keys())
         #Retrieves the terms
     with open("output.txt",'r') as f:
         for x in queries:
@@ -63,15 +64,16 @@ def cosineScore(queries:list, docIds:dict) -> list:
                     break
             f.seek(0)
             for posting in list_of_posting:
-                temp = posting.split()
+                temp = posting[0].split()
                 doc = temp[0]
-                tf = temp[1]
-                Scores[doc] = q_score * (math.log10(tf) * math.log10(len(docIds.keys())/len(list_of_posting)))
+                tf = int(temp[1])
+                Scores[doc] = q_score * (math.log10(tf) * math.log10(doc_length/len(list_of_posting)))
                 Magnitude[doc] += Scores[doc]
-            for document in Scores.keys():
-                Scores[document] = Scores[document]/Magnitude[document]
+        for document in Scores.keys():
+            if Magnitude[document] != 0:
+                Scores[document] = Scores[document]/math.sqrt(Magnitude[document])
     
-    return [k for k, v in sorted(x.items(), key=lambda item: item[1])]
+    return [k for k, v in sorted(Scores.items(), key=lambda item: item[1])]
             
 
 
@@ -98,11 +100,6 @@ def search_result(queries:str, number_of_results:int):
     #                 break
     #         f.seek(0)
     results = cosineScore(queries,docIds)
-                
     results = translate_ids(docIds,results[:number_of_results]) # return the first 5 URLst
     return results + [time.time()-start_time]
-
-
-def idf(total_docs:int,docs_with_term:int):  # need to write to output.txt????
-    return round(math.log10(total_docs / docs_with_term), 3)
 
