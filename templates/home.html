@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-    <body background="{{url_for('static', filename='petr.jpg')}}"></body>
+    <body background="{{url_for('static', filename='petr.jpg')}}" </body>
     <head>
         <title>ICS Search Engine</title>
     </head>
@@ -11,7 +11,7 @@
 
             <! --- Logo --->
             <h1 style = "font-size: 49px;">
-                <span style="color:blue">ICS.SEARCH</span>
+                <img src="{{url_for('static', filename='logo.png')}}" alt="logo">
             </h1>
 
             <form clas= "Search" action="." method="post">
