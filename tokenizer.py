@@ -14,10 +14,8 @@ stopwords = {'ourselves', 'hers', 'between', 'yourself', 'but', 'again', 'there'
 
 def tokenize_remove_stopwords(text: str) -> [str]:
     '''tokenize removing all the stop words'''
-    text = re.sub(r"[^a-zA-Z0-9]+", " ", text)
-    text = text.strip()
-    text = text.lower()
-    return [token for token in text.split() if token not in stopwords]
+    text_tokens = tokenize(text)
+    return [token for token in text_tokens if token not in stopwords]
 
 def tokenize(text: str) -> [str]:
     """
