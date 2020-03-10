@@ -101,3 +101,8 @@ def search_result(queries:str, number_of_results:int):
                 
     results = translate_ids(docIds,results[:number_of_results]) # return the first 5 URLst
     return results + [time.time()-start_time]
+
+
+def idf(total_docs:int,docs_with_term:int):  # need to write to output.txt????
+    return round(math.log10(total_docs / docs_with_term), 3)
+
