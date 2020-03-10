@@ -73,7 +73,7 @@ def cosineScore(queries:list, docIds:dict) -> list:
             if Magnitude[document] != 0:
                 Scores[document] = Scores[document]/math.sqrt(Magnitude[document])
     
-    return [k for k, v in sorted(Scores.items(), key=lambda item: item[1])]
+    return [k for k, v in sorted(Scores.items(), key=lambda item: item[1],reverse=True)]
             
 
 
