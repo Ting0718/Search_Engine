@@ -108,11 +108,12 @@ def parseFiles(filename: str):
     html = content["content"]  # splits the content from url
 
     soup = BeautifulSoup(html, "lxml")
-    output = tokenizer.tokenize(soup.get_text(strip = True))  # tokenizes the output
+    output = tokenizer.tokenize(soup.get_text())  # tokenizes the output
     f.close()
     return url, output
 
 def parseFiles_important(filename: str):
+    '''create a list of important tokens'''
     f = open(filename, 'r', encoding="utf-8", errors="ignore")
     content = json.load(f)
 
@@ -120,21 +121,32 @@ def parseFiles_important(filename: str):
     html = content["content"]  # splits the content from url
 
     soup = BeautifulSoup(html, "lxml")
-    
-    '''a list of header tokens'''
+
+    '''a list of head tag tokens (this one includes stop words)'''
+    heads = soup.find_all(re.compile('head'))
+    list_of_heads = tokenizer.tokenize(" ".join([head.get_text() for head in heads]))
+
+    '''a list of heading tag tokens'''
     headers = soup.find_all(re.compile('^h[1-6]$'))
     list_of_headers = tokenizer.tokenize_remove_stopwords(" ".join([header.get_text() for header in headers]))
     
-    '''a list of header tokens'''
-    headers = soup.find_all(re.compile('^h[1-6]$'))
-    list_of_headers = tokenizer.tokenize_remove_stopwords(" ".join([header.get_text() for header in headers]))
+    '''a list of title tokens (this one includes stop words)'''
+    titles = soup.find_all(re.compile('title'))
+    list_of_titles = tokenizer.tokenize(" ".join([title.get_text() for title in titles]))
 
     '''a list of bold'''
     bolds = soup.find_all(re.compile('b'))
-    return tokenizer.tokenize_remove_stopwords(" ".join([bold.get_text() for bold in bolds]))
+    list_of_bolds = tokenizer.tokenize_remove_stopwords(" ".join([bold.get_text() for bold in bolds]))
 
-    bolds = soup.find_all(re.compile('b'))
-    return tokenizer.tokenize_remove_stopwords(" ".join([bold.get_text() for bold in bolds]))
+    '''a list of strong'''
+    strongs = soup.find_all(re.compile('strong'))
+    list_of_strongs = tokenizer.tokenize_remove_stopwords(" ".join([strong.get_text() for strong in strongs]))
+
+    '''a list of emphasis tags'''
+    emphasis = soup.find_all(re.compile('em'))
+    list_of_emphasis = tokenizer.tokenize_remove_stopwords(" ".join([empha.get_text() for empha in emphasis]))
+
+    return merge(list_of_heads, list_of_headers) + merge(list_of_titles, list_of_bolds) + merge(list_of_strongs, list_of_emphasis)
 
 
 def writeFile(inverted_index: dict, filename: str):

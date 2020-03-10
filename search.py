@@ -77,8 +77,6 @@ def cosineScore(queries:list, docIds:dict) -> list:
             
 
 
-
-
 def search_result(queries:str, number_of_results:int): 
     start_time = time.time()
     queries = queries.split()

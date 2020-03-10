@@ -9,13 +9,14 @@ stopwords = {'ourselves', 'hers', 'between', 'yourself', 'but', 'again', 'there'
              'ours', 'had', 'she', 'all', 'no', 'when', 'at', 'any', 'before', 'them', 'same', 'and', 'been', 'have', 'in', 'will', 'on', 'does',
              'yourselves', 'then', 'that', 'because', 'what', 'over', 'why', 'so', 'can', 'did', 'not', 'now', 'under', 'he', 'you', 'herself',
              'has', 'just', 'where', 'too', 'only', 'myself', 'which', 'those', 'i', 'after', 'few', 'whom',
-             't', 'being', 'if', 'theirs', 'my', 'against', 'a', 'by', 'doing', 'it', 'how', 'further', 'was', 'here', 'than'}
-
+             't', 'being', 'if', 'theirs', 'my', 'against', 'a', 'by', 'doing', 'it', 'how', 'further', 'was', 'here', 'than',
+             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
+            
 
 def tokenize_remove_stopwords(text: str) -> [str]:
     '''tokenize removing all the stop words'''
     text_tokens = tokenize(text)
-    return [token for token in text_tokens if token not in stopwords]
+    return [token for token in text_tokens if (token not in stopwords and len(token) <= 20)]
 
 def tokenize(text: str) -> [str]:
     """

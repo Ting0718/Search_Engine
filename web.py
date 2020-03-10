@@ -17,9 +17,10 @@ def result():
     queries = request.form["queries"]
     num_of_result = int(request.form["numOfResults"])
     print(num_of_result)
-    results = search_result(queries, num_of_result)[:-1]
+    output = search_result(queries, num_of_result)
+    results = output[:-1]
     actual_results = len(results)
-    time = search_result(queries, num_of_result)[-1]
+    time = output[-1]
     return render_template("result.html", queries=queries, results=results, time=time, num_of_result=num_of_result, actual_results=actual_results)
 
 if __name__ == "__main__":
