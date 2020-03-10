@@ -20,16 +20,6 @@ MAX_INDEX_LENGTH = 15000  # max length of indexes before merge
 THREADS = 1  # how many threads will be used to scan documents
 TOTAL_DOCUMENTS = 51187  # how many docs in total
 
-stopwords = {'ourselves', 'hers', 'between', 'yourself', 'but', 'again', 'there', 'about', 'once', 'during', 'out', 'very', 'having', 'with',
-             'they', 'own', 'an', 'be', 'some', 'for', 'do', 'its', 'yours', 'such', 'into', 'of', 'most', 'itself', 'other', 'off', 'is', 's',
-             'am', 'or', 'who', 'as', 'from', 'him', 'each', 'the', 'themselves', 'until', 'below', 'are', 'we', 'these', 'your', 'his', 'through',
-             'don', 'nor', 'me', 'were', 'her', 'more', 'himself', 'this', 'down', 'should', 'our', 'their', 'while', 'above', 'both', 'up', 'to',
-             'ours', 'had', 'she', 'all', 'no', 'when', 'at', 'any', 'before', 'them', 'same', 'and', 'been', 'have', 'in', 'will', 'on', 'does',
-             'yourselves', 'then', 'that', 'because', 'what', 'over', 'why', 'so', 'can', 'did', 'not', 'now', 'under', 'he', 'you', 'herself',
-             'has', 'just', 'where', 'too', 'only', 'myself', 'which', 'those', 'i', 'after', 'few', 'whom',
-             't', 'being', 'if', 'theirs', 'my', 'against', 'a', 'by', 'doing', 'it', 'how', 'further', 'was', 'here', 'than'}
-
-
 class DocID:
     '''
     class to keep track of document Id numbers
@@ -122,13 +112,6 @@ def parseFiles(filename: str):
     f.close()
     return url, output
 
-def tokenize_remove_stopwords(text: str) -> [str]:
-    '''tokenize removing all the stop words'''
-    text = re.sub(r"[^a-zA-Z0-9]+", " ", text)
-    text = text.strip()
-    text = text.lower()
-    return [token for token in text.split() if token not in stopwords]
-
 def parseFiles_important(filename: str):
     f = open(filename, 'r', encoding="utf-8", errors="ignore")
     content = json.load(f)
@@ -138,11 +121,20 @@ def parseFiles_important(filename: str):
 
     soup = BeautifulSoup(html, "lxml")
     
+    '''a list of header tokens'''
     headers = soup.find_all(re.compile('^h[1-6]$'))
-    list_of_headers = tokenize_remove_stopwords(" ".join([header.get_text(strip = True) for header in headers]))
+    list_of_headers = tokenizer.tokenize_remove_stopwords(" ".join([header.get_text() for header in headers]))
+    
+    '''a list of header tokens'''
+    headers = soup.find_all(re.compile('^h[1-6]$'))
+    list_of_headers = tokenizer.tokenize_remove_stopwords(" ".join([header.get_text() for header in headers]))
+
+    '''a list of bold'''
+    bolds = soup.find_all(re.compile('b'))
+    return tokenizer.tokenize_remove_stopwords(" ".join([bold.get_text() for bold in bolds]))
 
     bolds = soup.find_all(re.compile('b'))
-    return tokenizer.tokenize(" ".join([bold.get_text(strip = True) for bold in bolds]))
+    return tokenizer.tokenize_remove_stopwords(" ".join([bold.get_text() for bold in bolds]))
 
 
 def writeFile(inverted_index: dict, filename: str):
