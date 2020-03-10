@@ -1,6 +1,8 @@
 import main
 import threading
 from collections import defaultdict
+import nltk
+from nltk.corpus import stopwords
 
 class Indexer(threading.Thread):
     def __init__(self,write_file:str,manager, request_document_lock,simhash_lock,thread):
