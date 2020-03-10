@@ -146,7 +146,9 @@ def parseFiles_important(filename: str):
     emphasis = soup.find_all(re.compile('em'))
     list_of_emphasis = tokenizer.tokenize_remove_stopwords(" ".join([empha.get_text() for empha in emphasis]))
 
-    return merge(list_of_heads, list_of_headers) + merge(list_of_titles, list_of_bolds) + merge(list_of_strongs, list_of_emphasis)
+    f.close()
+
+    return [url] + merge(list_of_heads, list_of_headers) + merge(list_of_titles, list_of_bolds) + merge(list_of_strongs, list_of_emphasis)
 
 
 def writeFile(inverted_index: dict, filename: str):
