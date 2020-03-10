@@ -12,6 +12,7 @@ import indexer
 import simhash
 import search
 import math
+import re
 
 
 #constants
@@ -19,13 +20,21 @@ MAX_INDEX_LENGTH = 15000  # max length of indexes before merge
 THREADS = 1  # how many threads will be used to scan documents
 TOTAL_DOCUMENTS = 51187  # how many docs in total
 
+stopwords = {'ourselves', 'hers', 'between', 'yourself', 'but', 'again', 'there', 'about', 'once', 'during', 'out', 'very', 'having', 'with',
+             'they', 'own', 'an', 'be', 'some', 'for', 'do', 'its', 'yours', 'such', 'into', 'of', 'most', 'itself', 'other', 'off', 'is', 's',
+             'am', 'or', 'who', 'as', 'from', 'him', 'each', 'the', 'themselves', 'until', 'below', 'are', 'we', 'these', 'your', 'his', 'through',
+             'don', 'nor', 'me', 'were', 'her', 'more', 'himself', 'this', 'down', 'should', 'our', 'their', 'while', 'above', 'both', 'up', 'to',
+             'ours', 'had', 'she', 'all', 'no', 'when', 'at', 'any', 'before', 'them', 'same', 'and', 'been', 'have', 'in', 'will', 'on', 'does',
+             'yourselves', 'then', 'that', 'because', 'what', 'over', 'why', 'so', 'can', 'did', 'not', 'now', 'under', 'he', 'you', 'herself',
+             'has', 'just', 'where', 'too', 'only', 'myself', 'which', 'those', 'i', 'after', 'few', 'whom',
+             't', 'being', 'if', 'theirs', 'my', 'against', 'a', 'by', 'doing', 'it', 'how', 'further', 'was', 'here', 'than'}
+
 
 class DocID:
     '''
     class to keep track of document Id numbers
     Add to docs will add a document to a local dictionary of id:url and will return the id number used for that url
     '''
-
     def __init__(self):
         self.current_doc = 0
         self.doc_ids = dict()
@@ -85,7 +94,6 @@ class IndexerManager:
             self.simhashes.add(hashed_doc)
             return False
 
-
 def porterstemmer(s: str):
     '''porter stemmer'''
     porter = PorterStemmer()
@@ -107,19 +115,41 @@ def parseFiles(filename: str):
     content = json.load(f)
 
     url = content["url"]
-    html = content["content"]  # splits the content fromurl
+    html = content["content"]  # splits the content from url
 
     soup = BeautifulSoup(html, "lxml")
-    output = tokenizer.tokenize(soup.get_text())  # tokenizes the output
+    output = tokenizer.tokenize(soup.get_text(strip = True))  # tokenizes the output
+    f.close()
     return url, output
+
+def tokenize_remove_stopwords(text: str) -> [str]:
+    '''tokenize removing all the stop words'''
+    text = re.sub(r"[^a-zA-Z0-9]+", " ", text)
+    text = text.strip()
+    text = text.lower()
+    return [token for token in text.split() if token not in stopwords]
+
+def parseFiles_important(filename: str):
+    f = open(filename, 'r', encoding="utf-8", errors="ignore")
+    content = json.load(f)
+
+    url = content["url"]
+    html = content["content"]  # splits the content from url
+
+    soup = BeautifulSoup(html, "lxml")
+    
+    headers = soup.find_all(re.compile('^h[1-6]$'))
+    list_of_headers = tokenize_remove_stopwords(" ".join([header.get_text(strip = True) for header in headers]))
+
+    bolds = soup.find_all(re.compile('b'))
+    return tokenizer.tokenize(" ".join([bold.get_text(strip = True) for bold in bolds]))
 
 
 def writeFile(inverted_index: dict, filename: str):
     '''Writes parsed information into a disk'''
     f = open(filename, "w")
     for k, v in sorted(inverted_index.items()):
-        f.write(k + "," + ",".join(str(x[0]) + " " + str(x[1])
-                                   for x in sorted(v, key=lambda x: x[0])) + "\n")
+        f.write(k + "," + ",".join(str(x[0]) + " " + str(x[1]) for x in sorted(v, key=lambda x: x[0])) + "\n")
     f.close()
 
 
