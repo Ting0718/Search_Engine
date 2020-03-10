@@ -233,22 +233,6 @@ def tf(tokenized_file: [str]):
         to_ret.append((k, v))
     return to_ret
 
-def idf(term: str):  # need to write to output.txt????
-    file = "outputs/output" + term[0] + ".txt"
-    '''IDF(t) = log_10(Total number of documents / Number of documents with term t in it).'''
-    try:
-        num_of_doc = 0
-        with open(file, 'r') as f:
-            for line in f:
-                if search.getToken(line) == porterstemmer(term):
-                    num_of_doc = len(search.SetOfDocId(line))
-                    break
-
-        # round to only 3 decimals to save spaces
-        return round(math.log10(TOTAL_DOCUMENTS/num_of_doc), 3)
-    except:
-        return 0  # there is no such term || the length is zero
-
 
 
 if __name__ == "__main__":

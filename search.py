@@ -4,6 +4,7 @@ import time
 import json
 import binarySearch
 from sklearn.metrics.pairwise import cosine_similarity
+import math
 
 def porterstemmer(s: str):
     '''porter stemmer'''
@@ -38,6 +39,7 @@ def search_result(queries:str, number_of_results:int):
     queries = queries.split()
     queries = [porterstemmer(x) for x in queries]
     docIds = json.load(open("docID.json",'r'))
+    total_docs = len(docIds.keys())
     index = json.load(open("indexindex.json",'r'))
     keys = sorted(index.keys())
     list_of_posting = []
@@ -55,3 +57,8 @@ def search_result(queries:str, number_of_results:int):
             f.seek(0)
     results = translate_ids(docIds,mergePostings(list_of_posting)[:number_of_results]) # return the first 5 URLst
     return results + [time.time()-start_time]
+
+
+def idf(total_docs:int,docs_with_term:int):  # need to write to output.txt????
+    return round(math.log10(total_docs / docs_with_term), 3)
+
