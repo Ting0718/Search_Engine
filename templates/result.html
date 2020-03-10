@@ -1,15 +1,28 @@
 <!DOCTYPE html>
 <html>
-    <body background="{{url_for('static', filename='petr.jpg')}}"> </body>
-
+    <! <body background="{{url_for('static', filename='petr.jpg')}}"> </body> 
     <head>
         <title>ICS Search Result</title>
     </head>
+
     <body>
+        <form clas="Search" action="." method="post">
+            <label>Queries</label>
+            <input type="search" name="queries" size="70"><br>
+        
+            <label>Number of Results</label>
+            <input type="number" value="5" name="numOfResults" size="70">
+            <input type="submit" value="Search">
+            <input type="reset" value="Reset">
+        </form>
+
         <p>about {{actual_results}} results ({{time}} seconds) </p>
+        
         <center>
             <h1 style="font-size: 49px;">
+                <a href="http://127.0.0.1:5000/">
                 <img src="{{url_for('static', filename='logo.png')}}" alt="logo">
+                </a>
             </h1>
 
             <h2>Your searched for "{{queries}}"</h2>

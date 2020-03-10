@@ -276,10 +276,6 @@ if __name__ == "__main__":
     indexIndex("output.txt", "indexindex.json")
 
 
-    # tokens = parseFiles(
-    #     "/Users/shireenhsu/Desktop/CS121/Assignment3/121_Assignment3/DEV/alderis_ics_uci_edu/0f274aaa945c05641a9677b951c32026bb201ec9aeb6e691fedd1235b3a5d6af.json")
-
-    # tf_idf(tokens[0], tokens[1])
     
    
     
