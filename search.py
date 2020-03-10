@@ -60,11 +60,11 @@ def cosineScore(queries:list, docIds:dict) -> list:
                 line = f.readline()
                 line = line.split(',')
                 if(line[0] == x):
-                    list_of_posting.append(line[1:])
+                    list_of_posting = line[1:]
                     break
             f.seek(0)
             for posting in list_of_posting:
-                temp = posting[0].split()
+                temp = posting.split()
                 doc = temp[0]
                 tf = int(temp[1])
                 Scores[doc] = q_score * (math.log10(tf) * math.log10(doc_length/len(list_of_posting)))
