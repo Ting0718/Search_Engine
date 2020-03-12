@@ -42,7 +42,7 @@ def queryScore(term:str, queries:list) -> float:
             tf += 1
     return tf/len(queries)
 
-def cosineScore(queries:list, docIds:dict) -> list:
+def Score(queries:list, docIds:dict) -> list:
     index = json.load(open("indexindex.json",'r'))
     keys = sorted(index.keys())
     Scores = defaultdict(int)
@@ -69,15 +69,11 @@ def cosineScore(queries:list, docIds:dict) -> list:
                 temp = posting.split()
                 doc = temp[0]
                 tf = int(temp[1])
-                Scores[doc] += q_score * (math.log10(tf) * math.log10(doc_length/len(list_of_posting)))
-                Magnitude[doc] += Scores[doc] * Scores[doc]
+                Scores[doc] += q_score * ((1 + math.log10(tf)) * math.log10(doc_length/len(list_of_posting)))
         docSet = mergePostings(list_docIDs)
-        for document in Scores.keys():
-            # if document not in docSet:
-            #     Scores[document] = -1
-            if Magnitude[document] != 0:
-                Scores[document] = Scores[document]/math.sqrt(Magnitude[document])
-    print(sorted(Scores.items(), key=lambda item: item[1],reverse=True)[:30])
+        """To Do: binary search implementation of this"""
+       
+    print(sorted(Scores.items(), key=lambda item: item[1],reverse=True)[:50])
     return [k for k, v in sorted(Scores.items(), key=lambda item: item[1],reverse=True)]
             
 
@@ -102,7 +98,7 @@ def search_result(queries:str, number_of_results:int):
     #                 list_of_posting.append(SetOfDocId(line))
     #                 break
     #         f.seek(0)
-    results = cosineScore(queries,docIds)
+    results = Score(queries,docIds)
     results = translate_ids(docIds,results[:number_of_results]) # return the first 5 URLst
     return results + [time.time()-start_time]
 
