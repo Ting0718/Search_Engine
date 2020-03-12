@@ -11,7 +11,7 @@ def porterstemmer(s: str):
     porter = PorterStemmer()
     return (porter.stem(s))
 
-def SetOfDocId(line: str):
+def SetOfDocId(line):
     '''return a list of doc for a term'''
     s = set()
     for i in line:
@@ -75,7 +75,7 @@ def cosineScore(queries:list, docIds:dict) -> list:
         for document in Scores.keys():
             if document not in docSet:
                 Scores[document] = -1
-            elif Magnitude[document] != 0:
+            if Magnitude[document] != 0:
                 Scores[document] = Scores[document]/math.sqrt(Magnitude[document])
     
     return [k for k, v in sorted(Scores.items(), key=lambda item: item[1],reverse=True)]
