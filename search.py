@@ -14,7 +14,7 @@ def porterstemmer(s: str):
 def SetOfDocId(line: str):
     '''return a list of doc for a term'''
     s = set()
-    for i in line.split(',')[1:]:
+    for i in line:
         s.add(int(i.split()[0]))
     return s
 
@@ -26,7 +26,7 @@ def mergePostings(list_of_posting: list):
     '''merge a list of postings in inverted list'''
     if len(list_of_posting) == 0:
         return []
-    return list(set.intersection(*list_of_posting))
+    return set.intersection(*list_of_posting)
 
 def translate_ids(id_dict:dict,id_list):
     ret = []
@@ -50,6 +50,7 @@ def cosineScore(queries:list, docIds:dict) -> list:
     doc_length = len(docIds.keys())
         #Retrieves the terms
     with open("output.txt",'r') as f:
+        list_docIDs = []
         for x in queries:
             q_score = queryScore(x,queries)
             list_of_posting = []
@@ -61,6 +62,7 @@ def cosineScore(queries:list, docIds:dict) -> list:
                 line = line.split(',')
                 if(line[0] == x):
                     list_of_posting = line[1:]
+                    list_docIDs.append(SetOfDocId(line[1:]))
                     break
             f.seek(0)
             for posting in list_of_posting:
@@ -69,8 +71,11 @@ def cosineScore(queries:list, docIds:dict) -> list:
                 tf = int(temp[1])
                 Scores[doc] = q_score * (math.log10(tf) * math.log10(doc_length/len(list_of_posting)))
                 Magnitude[doc] += Scores[doc]
+        docSet = mergePostings(list_docIDs)
         for document in Scores.keys():
-            if Magnitude[document] != 0:
+            if document not in docSet:
+                Scores[document] = -1
+            elif Magnitude[document] != 0:
                 Scores[document] = Scores[document]/math.sqrt(Magnitude[document])
     
     return [k for k, v in sorted(Scores.items(), key=lambda item: item[1],reverse=True)]
