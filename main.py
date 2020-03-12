@@ -109,17 +109,12 @@ def parseFiles(filename: str):
 
     soup = BeautifulSoup(html, "lxml")
     output = tokenizer.tokenize(soup.get_text())  # tokenizes the output
+    importants = parseFiles_important(html)
     f.close()
-    return url, output
+    return url, output, importants
 
-def parseFiles_important(filename: str):
+def parseFiles_important(html:str):
     '''create a list of important tokens'''
-    f = open(filename, 'r', encoding="utf-8", errors="ignore")
-    content = json.load(f)
-
-    url = content["url"]
-    html = content["content"]  # splits the content from url
-
     soup = BeautifulSoup(html, "lxml")
 
     '''a list of head tag tokens (this one includes stop words)'''
@@ -146,9 +141,8 @@ def parseFiles_important(filename: str):
     emphasis = soup.find_all(re.compile('em'))
     list_of_emphasis = tokenizer.tokenize_remove_stopwords(" ".join([empha.get_text() for empha in emphasis]))
 
-    f.close()
 
-    return [url] + merge(list_of_heads, list_of_headers) + merge(list_of_titles, list_of_bolds) + merge(list_of_strongs, list_of_emphasis)
+    return list_of_heads+ list_of_headers + list_of_titles+ list_of_bolds + list_of_strongs + list_of_emphasis
 
 
 def writeFile(inverted_index: dict, filename: str):
@@ -258,12 +252,15 @@ def indexIndex(filename: str, outputname: str):
         json.dump(indexer, f)
 
 
-def tf(tokenized_file: [str]):
+def tf(tokenized_file: [str],important_tokens: [str]):
     ''' calculate the tf and return as a list of tuples of (term,frequency) '''
     terms = defaultdict(int)
     for t in tokenized_file:
         stemWord = porterstemmer(t)
         terms[stemWord] += 1
+    for t in important_tokens:
+        stemWord = porterstemmer(t)
+        terms[stemWord] += 10
     to_ret = []
     for k, v in terms.items():
         to_ret.append((k, v))
