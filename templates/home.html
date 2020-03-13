@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-    <body background="{{url_for('static', filename='petr.jpg')}}" </body>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/style.css') }}">
 
     <head>
@@ -16,14 +15,27 @@
                 </a>
             </h1>
 
-            <form clas= "Search" action="." method="post">
+            <form class= "Search" action="." method="POST">
                 <label>Queries</label>
                 <input type="search" name="queries" size="70"><br>
                 
                 <label>Number of Results</label>
-                <input type="number" value="5" name="numOfResults" size = "70">
+                <input type="number" value="5" name="numOfResults">
                 <input type="submit" value="Search">
                 <input type="reset" value="Reset">
+                
+                <br>
+
+                <label for="sort">Choose a ranking:</label>
+                <select id="sort" name="sort">
+                    <option value="tf-idf">tf-idf</option>
+                    <option value="cosine similarity">cosine similarity</option>
+                </select>
+
+                <br>
+
+                <font color="red">Warning: Cosine similarity is a beta verion. Search at your own risk</font>
+
             </form>
 
         </center>

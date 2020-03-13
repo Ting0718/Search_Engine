@@ -1,0 +1,6 @@
+.label {
+  color: white;
+  padding: 8px;
+}
+
+.danger {background-color: #f44336;} /* Red */
