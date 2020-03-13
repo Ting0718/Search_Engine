@@ -262,8 +262,9 @@ def tf(tokenized_file: [str],important_tokens: [str]):
         stemWord = porterstemmer(t)
         terms[stemWord] += 10
     to_ret = []
+    total_terms = len(tokenized_file)
     for k, v in terms.items():
-        to_ret.append((k, v))
+        to_ret.append((k, round(v/total_terms,5))) #adds the term and the tf divided by length rounded to 5 places
     return to_ret
 
 
