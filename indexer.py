@@ -5,6 +5,7 @@ import nltk
 from nltk.corpus import stopwords
 
 class Indexer(threading.Thread):
+    '''class inhertis from thread, used to index with multiple threads'''
     def __init__(self,write_file:str,manager, request_document_lock,simhash_lock,thread):
         self.indexed = 0
         self.file_name = write_file
@@ -19,7 +20,7 @@ class Indexer(threading.Thread):
 
     def run(self):
         while True:
-            if self.indexed == main.MAX_INDEX_LENGTH:
+            if self.indexed == main.MAX_INDEX_LENGTH: #if it has indexed the max number of files in memory it dumps to a partial index
                 self.dump_index()
             else:
                 self.request_document_lock.acquire()
@@ -29,13 +30,13 @@ class Indexer(threading.Thread):
                     self.dump_index()
                     return
                 url,html,importants = main.parseFiles(page)
-                list_of_tokens = main.tf(html,importants) # might have to calculate the tf-idf here
+                list_of_tokens = main.tf(html,importants)
                 self.simhash_lock.acquire()
-                if len(list_of_tokens) > 25 and not self.manager.check_simhash(list_of_tokens):
+                if len(list_of_tokens) > 25 and not self.manager.check_simhash(list_of_tokens): #if < 25 tokens or simhash found ignores page
                     index_num = self.manager.docid_file_to_url(url)
                     self.simhash_lock.release()
                     for token in list_of_tokens:
-                        self.index[token[0]].append((index_num, token[1]))
+                        self.index[token[0]].append((index_num, token[1])) #appends this doc and tf to all tokens the doc has
                     self.indexed += 1
                     print("THREAD: " + str(self.thread_id) + " INDEXED: " + page + " " + str(index_num))
                 else:
@@ -44,6 +45,7 @@ class Indexer(threading.Thread):
 
 
     def dump_index(self):
+        '''writes what this indexer has into a partial index and adds it to the list of partials'''
         main.writeFile(self.index,self.file_name)
         self.manager.add_partial_index(self.file_name)
         self.index.clear()

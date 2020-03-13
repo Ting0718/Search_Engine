@@ -1,24 +1,22 @@
-#TOTAL_DOCUMENTS = 55392
-#TOAL_TOKENS = 1256389
+
 import os
 import nltk
 from nltk.stem import PorterStemmer
 import json
 from bs4 import BeautifulSoup
-import tokenizer
 from collections import defaultdict
 import threading
-import indexer
-import simhash
+import tokenizer #self made
+import indexer #self made
+import simhash #self made
 import search
 import math
 import re
 
 
 #constants
-MAX_INDEX_LENGTH = 15000  # max length of indexes before merge
+MAX_INDEX_LENGTH = 15000  # max length of indexes before dumping to partial index
 THREADS = 1  # how many threads will be used to scan documents
-TOTAL_DOCUMENTS = 51187  # how many docs in total
 
 class DocID:
     '''
@@ -85,13 +83,13 @@ class IndexerManager:
             return False
 
 def porterstemmer(s: str):
-    '''porter stemmer'''
+    '''stems the parameter s into its stem EG: fishes -> fish'''
     porter = PorterStemmer()
     return (porter.stem(s))
 
 
 def readFiles(mypath: str):
-    '''parses through all files in the folder and returns a list of their file paths'''
+    '''parses through all files in the folder path and returns a list of their file paths'''
     filepaths = []
     for root, dirs, files in os.walk(mypath, topdown=True):
         for name in files:
@@ -100,7 +98,10 @@ def readFiles(mypath: str):
 
 
 def parseFiles(filename: str):
-    ''' Reads through the corpus '''
+    '''
+    reads the file passed as an argument, returns the url, a list of tokens, and a list of tokens in headers
+    or in bold
+    '''
     f = open(filename, 'r', encoding="utf-8", errors="ignore")
     content = json.load(f)
 
@@ -114,7 +115,7 @@ def parseFiles(filename: str):
     return url, output, importants
 
 def parseFiles_important(html:str):
-    '''create a list of important tokens'''
+    '''creates and returns a list of tokens found in headers, bold, and emphasis'''
     soup = BeautifulSoup(html, "lxml")
 
     '''a list of head tag tokens (this one includes stop words)'''
@@ -146,7 +147,7 @@ def parseFiles_important(html:str):
 
 
 def writeFile(inverted_index: dict, filename: str):
-    '''Writes parsed information into a disk'''
+    '''writes each entry in the index into a file that can be used as a partial index'''
     f = open(filename, "w")
     for k, v in sorted(inverted_index.items()):
         f.write(k + "," + ",".join(str(x[0]) + " " + str(x[1]) for x in sorted(v, key=lambda x: x[0])) + "\n")
@@ -154,6 +155,10 @@ def writeFile(inverted_index: dict, filename: str):
 
 
 def merge(list1, list2):
+    '''
+    merges the 2 lists passed while keeping alphabetical order
+    used when merging partial indexes into final index
+    '''
     answer = []
     c1, c2 = 0, 0
     while(c1 < len(list1) and c2 < len(list2)):
@@ -171,7 +176,7 @@ def merge(list1, list2):
 
 
 def mergeFiles(partialIndexes: list):
-    ''' Merging files '''
+    '''merges all partial indexes (paths passed as argument) into one final index named output.txt'''
     Index = []  # The current line of the index corresponding to the partial index. "False" if line empty
     fileStorage = []
     for x in partialIndexes:
@@ -215,7 +220,7 @@ def mergeFiles(partialIndexes: list):
         files.close()
 
 
-'''Code no longer needed for optimization'''
+# **Code no longer needed for optimization**
 # def splitFiles(filename:str):
 #     '''Splitgs the main output.txt into other smaller text files and puts those file names into a dictionary which it returns.'''
 #     split = ["9",'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
@@ -225,8 +230,6 @@ def mergeFiles(partialIndexes: list):
 #     for x in split:
 #         open(f"outputs/output{x}.txt" , 'w')
 #         fileStorage.append(open(f"outputs/output{x}.txt" , 'a'))
-
-
 #     with open(filename,"r") as f:
 #         for line in f:
 #             #print(f"{cursor}: {line}")
@@ -236,7 +239,10 @@ def mergeFiles(partialIndexes: list):
 #             fileStorage[cursor].write(line)
 
 def indexIndex(filename: str, outputname: str):
-    '''Creates a json file containing every 20th term and a offset value to the to the function'''
+    '''
+    Creates a json file containing every 20th term and a offset value to the to the function
+    number could be increased or decreased if time-space tradeoffs are needed
+    '''
     indexer = {}
     counter = 0
     with open(filename, 'r') as f:
@@ -253,7 +259,11 @@ def indexIndex(filename: str, outputname: str):
 
 
 def tf(tokenized_file: [str],important_tokens: [str]):
-    ''' calculate the tf and return as a list of tuples of (term,frequency) '''
+    '''
+    calculates the tf of a tokenized file and returns as a list of tuple(docID,tf)
+    :param tokenized_file: file as a list of tokens
+    :param important_tokens: list of important terms in the file
+    '''
     terms = defaultdict(int)
     for t in tokenized_file:
         stemWord = porterstemmer(t)
@@ -262,7 +272,6 @@ def tf(tokenized_file: [str],important_tokens: [str]):
         stemWord = porterstemmer(t)
         terms[stemWord] += 10
     to_ret = []
-    total_terms = len(tokenized_file)
     for k, v in terms.items():
         to_ret.append((k, v)) #adds the term and the tf for each doc term
     return to_ret
@@ -281,7 +290,7 @@ if __name__ == "__main__":
     files = readFiles(path)
     doc_id = DocID()
     manager = IndexerManager(doc_id, files)
-    get_doc_lock = threading.Lock()
+    get_doc_lock = threading.Lock() #locks for multithreading
     simhash_lock = threading.Lock()
     indexers = [indexer.Indexer("partial(thread" + str(i) + ").txt", manager, #creates and instntiates indexers based on THREADS constant
                                 get_doc_lock, simhash_lock, i) for i in range(1, THREADS+1)]
@@ -289,9 +298,9 @@ if __name__ == "__main__":
         indexer.start() #starts all indexer threads
     for indexer in indexers:
         indexer.join() #waits for all indexer threads
-    mergeFiles(manager.partial_indexes)
-    doc_id.write_doc_id("docID.json")
-    indexIndex("output.txt", "indexindex.json")
+    mergeFiles(manager.partial_indexes) #merges the partial indexes written by indexers to the manager
+    doc_id.write_doc_id("docID.json") #stores the docID dictionary for use later
+    indexIndex("output.txt", "indexindex.json") #creates an index of the index for optimized search times
 
 
     
