@@ -50,7 +50,7 @@ class IndexerManager:
         self.doc_id_tracker = doc_id_track
         self.files = files
         self.partial_indexes = []
-        self.simhashes = simhash.HashManager(0.95)
+        self.simhashes = simhash.HashManager(0.90)
 
     def id_index(self, document):
         '''adds doc from a thread to the id tracker'''
