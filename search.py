@@ -10,7 +10,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import itertools
 import numpy as np
 
-TOTAL_DOCUMENTS = 51187 # will remove later
 Term = namedtuple("Term", "term docID tf idf")
 
 def porterstemmer(s: str):
@@ -79,7 +78,7 @@ def Score_for_doc(query,tf,idf,total_docs)-> ["a list of tf-idf for queries"]:
     idf = math.log10(total_docs/idf)
     return tf * idf
 
-def score_for_query(query:str,tf:int, line:str,total_docs): # might not want to open twice
+def score_for_query(query:str,tf:int, line:str,total_docs):
     tf = 1 + math.log10(tf)
     idf = math.log10(total_docs/getIdf(line))
     return tf*idf
