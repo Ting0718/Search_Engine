@@ -73,15 +73,15 @@ def tf_for_query(query:str, queries:list):
             s += 1
     return s
 
-def Score_for_doc(query,tf,idf)-> ["a list of tf-idf for queries"]:
+def Score_for_doc(query,tf,idf,total_docs)-> ["a list of tf-idf for queries"]:
     '''calculate the tf-idf here first'''
     tf = 1 + math.log10(tf)
-    idf = math.log10(TOTAL_DOCUMENTS/idf)
+    idf = math.log10(total_docs/idf)
     return tf * idf
 
-def score_for_query(query:str,tf:int, line:str): # might not want to open twice
+def score_for_query(query:str,tf:int, line:str,total_docs): # might not want to open twice
     tf = 1 + math.log10(tf)
-    idf = math.log10(TOTAL_DOCUMENTS/getIdf(line))
+    idf = math.log10(total_docs/getIdf(line))
     return tf*idf
 
 
@@ -96,6 +96,7 @@ def search_result_cosine(queries: list, number_of_results: int) -> list:
     doc_scores = defaultdict(list)
     cos_sim = defaultdict(set)
     docIds = json.load(open("docID.json", 'r'))
+    total_docs = len(docIds.keys())
 
     '''need to do the intersection too'''
     with open("output.txt",'r') as f:
@@ -108,7 +109,7 @@ def search_result_cosine(queries: list, number_of_results: int) -> list:
                 line2 = line.split(',')
                 if(line2[0] == x):
                     idf = len(line2) - 1
-                    query_vector[x] = score_for_query(x, tf_for_query(x, queries), line)
+                    query_vector[x] = score_for_query(x, tf_for_query(x, queries), line,total_docs)
                     for i in SetOfDocId(line):
                        d[i[1]].append(Term(x,i[1],i[2],idf))
             f.seek(0)
@@ -117,7 +118,7 @@ def search_result_cosine(queries: list, number_of_results: int) -> list:
         if len(d[i]) != 2:
             del d[i]
         for term in d[i]:
-           doc_scores[i].append(Score_for_doc(term.term,int(term.tf),term.idf))
+           doc_scores[i].append(Score_for_doc(term.term,int(term.tf),term.idf,total_docs))
     
     for doc in doc_scores:
         q1 = [list(query_vector.values())]
