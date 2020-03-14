@@ -19,6 +19,13 @@ def porterstemmer(s: str):
     return (porter.stem(s))
 
 
+def SetOfDocId_tf(line):
+    '''return a list of doc for a term'''
+    s = set()
+    for i in line:
+        s.add(int(i.split()[0]))
+    return s
+
 def SetOfDocId(line):
     l = set()
     word = line.split(",")[0]
@@ -150,7 +157,7 @@ def Score(queries: list, docIds: dict) -> list:
                 line = line.split(',')
                 if(line[0] == x):
                     list_of_posting = line[1:]
-                    list_docIDs.append(SetOfDocId(line[1:]))
+                    list_docIDs.append(SetOfDocId_tf(line[1:]))
                     break
             f.seek(0)
             for posting in list_of_posting:
