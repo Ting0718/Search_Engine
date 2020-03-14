@@ -23,7 +23,7 @@ def SetOfDocId_tf(line):
     '''return a list of doc for a term'''
     s = set()
     for i in line:
-        s.add(int(i.split()[0]))
+        s.add(i.split()[0])
     return s
 
 def SetOfDocId(line):
@@ -137,6 +137,7 @@ def queryScore(term: str, queries: list) -> float:
     return tf/len(queries)
 
 
+
 def Score(queries: list, docIds: dict, number_of_results:int) -> list:
     index = json.load(open("indexindex.json", 'r'))
     keys = sorted(index.keys())
@@ -166,14 +167,14 @@ def Score(queries: list, docIds: dict, number_of_results:int) -> list:
                 tf = int(temp[1])
                 Scores[doc] += q_score * ((1 + math.log10(tf)) * math.log10(doc_length/len(list_of_posting)))
 
-    disjunction = [k for k, v in sorted(
-        Scores.items(), key=lambda item: item[1], reverse=True)] # this is the disjunction
+    docSet = mergePostings(list_docIDs)  # this is the intersection
 
-    docSet = mergePostings(list_docIDs) # this is the intersection 
+    disjunction = {k for k, v in sorted(
+        Scores.items(), key=lambda item: item[1], reverse=True)} - set(docSet) # this is the disjunction
 
     if len(docSet) < number_of_results: 
-        disjunction_num = number_of_results - len(docSet)
-        disjunction_truncate = disjunction[:disjunction_num]
+        disjunction_num = number_of_results - len(docSet) 
+        disjunction_truncate = list(disjunction)[:disjunction_num]
         return docSet + disjunction_truncate
 
     elif len(docSet) >= number_of_results:
@@ -189,3 +190,4 @@ def search_result(queries: str, number_of_results: int):
     # return the first 5 URLst
     results = translate_ids(docIds, results[:number_of_results])
     return results + [time.time()-start_time]
+
