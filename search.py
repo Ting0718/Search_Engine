@@ -74,7 +74,6 @@ def Score_for_doc(query,tf,idf)-> ["a list of tf-idf for queries"]:
     return tf * idf
 
 def score_for_query(query:str,tf:int, line:str): # might not want to open twice
-
     tf = 1 + math.log10(tf)
     idf = math.log10(TOTAL_DOCUMENTS/getIdf(line))
     return tf*idf
