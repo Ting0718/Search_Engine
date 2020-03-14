@@ -137,7 +137,8 @@ def queryScore(term: str, queries: list) -> float:
             tf += 1
     return tf/len(queries)
 
-def Score(queries: list, docIds: dict) -> list:
+
+def Score(queries: list, docIds: dict, number_of_results:int) -> list:
     index = json.load(open("indexindex.json", 'r'))
     keys = sorted(index.keys())
     Scores = defaultdict(int)
@@ -164,34 +165,25 @@ def Score(queries: list, docIds: dict) -> list:
                 temp = posting.split()
                 doc = temp[0]
                 tf = int(temp[1])
-                Scores[doc] += q_score * ((1 + math.log10(tf))
-                                          * math.log10(doc_length/len(list_of_posting)))
+                Scores[doc] += q_score * ((1 + math.log10(tf)) * math.log10(doc_length/len(list_of_posting)))
+    
+    if len(Scores) < number_of_results:
         docSet = mergePostings(list_docIDs)
-        """To Do: binary search implementation of this"""
-        
-    return [k for k, v in sorted(Scores.items(), key=lambda item: item[1], reverse=True)]
+        no_intersection_num = number_of_results - len(Scores[doc])
+        disjunction = docSet[:no_intersection_num]
+        return [k for k, v in sorted(Scores.items(), key=lambda item: item[1], reverse=True)] + disjunction
+
+    elif len(Scores) >= number_of_results:
+        return [k for k, v in sorted(Scores.items(), key=lambda item: item[1], reverse=True)]
+
 
 def search_result(queries: str, number_of_results: int):
     start_time = time.time()
     queries = queries.split()
     queries = [porterstemmer(x) for x in queries]
     docIds = json.load(open("docID.json", 'r'))
-    # index = json.load(open("indexindex.json",'r'))
-    # keys = sorted(index.keys())
-    # list_of_posting = []
-
-    # with open("output.txt",'r') as f:
-    #     for x in queries:
-    #         closest = binarySearch.search(keys,x)
-    #         offset = index[keys[closest]]
-    #         f.seek(offset)
-    #         for y in range(20):
-    #             line = f.readline()
-    #             if(line.split(',')[0] == x):
-    #                 list_of_posting.append(SetOfDocId(line))
-    #                 break
-    #         f.seek(0)
-    results = Score(queries, docIds)
+    results = Score(queries, docIds, number_of_results)
     # return the first 5 URLst
     results = translate_ids(docIds, results[:number_of_results])
     return results + [time.time()-start_time]
+
