@@ -73,7 +73,6 @@ def tf_for_query(query:str, queries:list):
             s += 1
     return s
 
-
 def Score_for_doc(query,tf,idf)-> ["a list of tf-idf for queries"]:
     '''calculate the tf-idf here first'''
     tf = 1 + math.log10(tf)
@@ -166,15 +165,19 @@ def Score(queries: list, docIds: dict, number_of_results:int) -> list:
                 doc = temp[0]
                 tf = int(temp[1])
                 Scores[doc] += q_score * ((1 + math.log10(tf)) * math.log10(doc_length/len(list_of_posting)))
-    
-    if len(Scores) < number_of_results:
-        docSet = mergePostings(list_docIDs)
-        no_intersection_num = number_of_results - len(Scores[doc])
-        disjunction = docSet[:no_intersection_num]
-        return [k for k, v in sorted(Scores.items(), key=lambda item: item[1], reverse=True)] + disjunction
 
-    elif len(Scores) >= number_of_results:
-        return [k for k, v in sorted(Scores.items(), key=lambda item: item[1], reverse=True)]
+    disjunction = [k for k, v in sorted(
+        Scores.items(), key=lambda item: item[1], reverse=True)] # this is the disjunction
+
+    docSet = mergePostings(list_docIDs) # this is the intersection 
+
+    if len(docSet) < number_of_results: 
+        disjunction_num = number_of_results - len(docSet)
+        disjunction_truncate = disjunction[:disjunction_num]
+        return docSet + disjunction_truncate
+
+    elif len(docSet) >= number_of_results:
+        return docSet
 
 
 def search_result(queries: str, number_of_results: int):
@@ -186,4 +189,3 @@ def search_result(queries: str, number_of_results: int):
     # return the first 5 URLst
     results = translate_ids(docIds, results[:number_of_results])
     return results + [time.time()-start_time]
-
